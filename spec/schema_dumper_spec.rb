@@ -44,6 +44,13 @@ describe "Schema dump" do
     class ::Comment < ActiveRecord::Base ; end
   end
 
+  it "should enable foreign keys if any", sqlite3: :only do
+    expect(dump_schema).to_not match(/PRAGMA FOREIGN_KEYS = ON/m)
+    with_foreign_key Post, :user_id, :users, :id do
+      expect(dump_schema).to match(/PRAGMA FOREIGN_KEYS = ON/m)
+    end
+  end
+
   it "should include foreign_key definition" do
     with_foreign_key Post, :user_id, :users, :id do
       expect(dump_posts).to match(%r{t.integer\s+"user_id".*foreign_key.*users})

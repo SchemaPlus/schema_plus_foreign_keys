@@ -15,8 +15,11 @@ module SchemaPlus::ForeignKeys
           @backref_fks = Hash.new{ |h, k| h[k] = [] }
 
           env.connection.tables.each do |table|
-            @inline_fks[table] = env.connection.foreign_keys(table)
-            env.dump.depends(table, @inline_fks[table].collect(&:to_table))
+            if (fks = env.connection.foreign_keys(table)).any?
+              env.dump.data.has_fks = true
+              @inline_fks[table] = fks
+              env.dump.depends(table, fks.collect(&:to_table))
+            end
           end
 
           # Normally we dump foreign key constraints inline in the table
@@ -48,6 +51,12 @@ module SchemaPlus::ForeignKeys
             backref_fks.each do |fk|
               @backref_fks[fk.to_table] << fk
             end
+          end
+        end
+
+        module SQLite3
+          def after(env)
+            env.dump.initial << "  PRAGMA FOREIGN_KEYS = ON;\n" if env.dump.data.has_fks
           end
         end
 

@@ -8,11 +8,6 @@ module SchemaPlus::ForeignKeys
 
         # :enddoc:
 
-        def initialize(*args)
-          super
-          execute('PRAGMA FOREIGN_KEYS = ON')
-        end
-
         def add_foreign_key(table_name, to_table, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} to #{to_table.inspect})"
         end

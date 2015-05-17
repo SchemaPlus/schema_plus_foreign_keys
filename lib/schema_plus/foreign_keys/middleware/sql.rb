@@ -14,6 +14,13 @@ module SchemaPlus::ForeignKeys
           # prevents AR >= 4.2.1 from emitting add_foreign_key after the table
           env.table_definition.foreign_keys.clear
         end
+
+        module SQLite3
+
+          def before(env)
+            env.connection.execute('PRAGMA FOREIGN_KEYS = ON') if env.table_definition.foreign_keys.any?
+          end
+        end
       end
     end
   end

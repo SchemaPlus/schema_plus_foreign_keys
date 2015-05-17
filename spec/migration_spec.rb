@@ -36,7 +36,16 @@ describe ActiveRecord::Migration do
       @model = Post
     end
 
-    it "should create explicit foreign key with default reference" do
+    it "should enable foreign keys", :sqlite3 => :only do
+      sql = []
+      allow(@model.connection).to receive(:execute) { |str| sql << str }
+      recreate_table(@model) do |t|
+        t.integer :user, :foreign_key => true
+      end
+      expect(sql.join('; ')).to match(/PRAGMA FOREIGN_KEYS = ON.*CREATE TABLE "posts"/)
+    end
+
+    it "should create foreign key with default reference" do
       recreate_table(@model) do |t|
         t.integer :user, :foreign_key => true
       end

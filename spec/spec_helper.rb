@@ -33,10 +33,14 @@ end
 def with_fk_config(opts, &block)
   save = Hash[opts.keys.collect{|key| [key, SchemaPlus::ForeignKeys.config.send(key)]}]
   begin
-    SchemaPlus::ForeignKeys.config.update_attributes(opts)
+    SchemaPlus::ForeignKeys.setup do |config|
+      config.update_attributes(opts)
+    end
     yield
   ensure
-    SchemaPlus::ForeignKeys.config.update_attributes(save)
+    SchemaPlus::ForeignKeys.setup do |config|
+      config.update_attributes(save)
+    end
   end
 end
 

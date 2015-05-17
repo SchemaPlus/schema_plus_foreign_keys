@@ -96,7 +96,7 @@ module SchemaPlus::ForeignKeys
             (from_table, column, to_table, primary_key) = args
             options.merge!(column: column, primary_key: primary_key)
           else
-            raise ArgumentError, "Wrong number of arguments(args.length) to remove_foreign_key"
+            raise ArgumentError, "Wrong number of arguments(#{args.length}) to remove_foreign_key"
           end
           to_table ||= options.delete(:to_table)
           [from_table, to_table, options]

@@ -92,7 +92,7 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
       when 3
         ActiveSupport::Deprecation.warn "positional arg for foreign primary key is deprecated, use :primary_key option instead"
         column_names, to_table, primary_key = args
-        options.merge(:primary_key => primary_key)
+        options.merge!(:primary_key => primary_key)
       else
         raise ArgumentError, "wrong number of arguments (#{args.length}) for foreign_key(column_names, table_name, options)"
       end

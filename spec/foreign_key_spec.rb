@@ -17,6 +17,7 @@ describe "Foreign Key" do
       end
       class User < ::ActiveRecord::Base ; end
       class Comment < ::ActiveRecord::Base ; end
+      Comment.reset_column_information
     end
 
     it "should report foreign key constraints" do

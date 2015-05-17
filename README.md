@@ -5,9 +5,12 @@
 
 # SchemaPlus::ForeignKeys
 
-TODO: Write a gem description
+SchemaPlus::ForeignKeys provides extended support in ActiveRecord.  This includes extended support for declaraing foreign key constraints in migrations; support for deferrable constraints; support for SQLite3; cleaner schema dumps.
 
 SchemaPlus::ForeignKeys is part of the [SchemaPlus](https://github.com/SchemaPlus/) family of Ruby on Rails ActiveRecord extension gems.
+
+For extra convenience, see also [schema_auto_foreign_keys](https://github.com/SchemaPlus/schema_auto_foreign_keys), which creates foriegn key constraints automatically.
+
 
 ## Installation
 
@@ -22,6 +25,117 @@ gem.add_dependency "schema_plus_foreign_keys" # in a .gemspec
 
 <!-- SCHEMA_DEV: TEMPLATE INSTALLATION - end -->
 
+## Usage
+
+### Migrations
+
+To declare a foreign key constraint for a column, use the `:foreign_key`
+option.  The same options can be used with `t.integer`, `t.references`, `t.belongs_to`, `t.foreign_key`, `change_column`, and `add_foreign_key`:
+
+    t.integer :author_id, foreign_key: true           # create a foreign_key to table "authors"
+    t.integer :author_id, foreign_key: {}             # create a foreign_key to table "authors"
+    t.integer :author_id, foreign_key: false          # don't create a constraint (this is the default)
+    t.integer :author,    foreign_key: true           # create a foreign_key to table "authors"
+
+    t.integer :parent_id, foreign_key: true           # special column parent_id defaults to referencing its own table
+
+Specify the target table and its primary key using the `:references` and `:primary_key`:
+
+    t.integer :author_id, foreign_key: { references: :authors }        # the default
+    t.integer :author,    foreign_key: { references: :authors }        # the default
+    t.integer :author_id, foreign_key: { references: :people }         # choose table name
+    t.integer :author_id, foreign_key: { primary_key: :ssn] }          # choose primary key
+    t.integer :author_id, foreign_key: { references: :people, primary_key: :ssn] } # choose both
+    t.integer :author_id, foreign_key: { references: [:people, :ssn] } # shortcut for both
+    t.integer :author_id, foreign_key: { references: nil }             # same as foreign_key: false
+
+You can also specify other attributes:
+
+    t.integer :author_id, foreign_key: { name: "my_fk" }               # override default auto-generated constraint name
+    t.integer :author_id, foreign_key: { on_delete: :cascade }
+    t.integer :author_id, foreign_key: { on_update: :set_null }
+    t.integer :author_id, foreign_key: { deferrable: true }
+    t.integer :author_id, foreign_key: { deferrable: :initially_deferred }
+
+Of course the options can be combined:
+
+    t.integer :author_id, foreign_key: { references: :people, primary_key: :ssn, name: "my_fk", on_delet: :no_action }
+
+
+As a shorthand, all options except `:name` can be specified without placing
+them in a `foreign_key` hash, e.g.
+
+    t.integer :author_id, on_delete: :cascade  # shorthand for foreign_key: { on_delete: :cascade }
+    t.integer :author_id, references: :people  # shorthand for foreign_key: { references: :people }
+
+To remove a foreign key constraint, you can either change the column, specifying `foreign_key: false`, or use `migration.remove_foreign_key(table, column)`
+
+### Introspection
+
+To examine the foreign keys on a model, you can use:
+
+    Model.foreign_keys            # foreign key constraints from this model to another
+    Model.reverse_foreign_keys    # foreign key constraints from other models to this
+
+(These results are cached along with other column-specific information; if you change the table definition, call `Model.reset_column_information` to clear the cache)
+
+You can also query at the connection level (uncached):
+
+    connection.foreign_keys(table_name)
+    connection.reverse_foreign_keys(table_name)
+
+These calls all return an array of ForeignKeyDefinition objects, which support these methods:
+
+    fk.from_table
+    fk.column
+    fk.to_table
+    fk.primary_key
+    fk.on_update
+    fk.on_delete
+    fk.deferrable
+
+### Configuring Defaults
+
+If you don't specify `on_update` and `on_delete` when creating a foreign key
+constraint, they normally default to whatever the DBMS's default behavior is.
+
+But you can also configure a global default (e.g. in a Rails initializer):
+
+```ruby
+SchemaPlus::ForeignKey.setup do |config|
+    config.on_update = :cascade   # default is nil, meaning use default dbms behavior
+    config.on_delete = :nullify   # default is nil, meaning use default dbms behavior
+end
+```
+
+Or you can configure a per-table default in a migration:
+
+```ruby
+create_table :things, foreign_key: { on_update: :set_null } do |t|
+    ...
+end
+```
+
+### SQLite 3 Notes
+
+SchemaPlus::ForeignKeys supports foreign key constraints in SQLite3. 
+
+However note that SQLite3 requires you to declare the constraints as part of
+the table definition, and does not allow you to add, remove, or change
+constraints after the fact.  Thus you'll get an exception if you try
+`add_foreign_key`, `remove_foreign_key`, or `change_column` changing the
+foreign key options.
+
+
+### Schema Dump
+
+For clarity (and because it's required for SQLite3), in the generated `schema_dump.rb` file, the foreign key definitions are inluded within the table definitions.
+
+This means that the tables are output sorted that a table is
+defined before others that depend on it.  If, however, there are circularities in the
+foreign key relations, this won't be possible; In that case some table definitions will include comments indicating a "forward reference" to a table that's farther down in the file, and the constraint will be defined once that table is defined (this can never happen with SQLite3).
+
+
 ## Compatibility
 
 SchemaPlus::ForeignKeys is tested on:
@@ -33,13 +147,9 @@ SchemaPlus::ForeignKeys is tested on:
 
 <!-- SCHEMA_DEV: MATRIX - end -->
 
-## Usage
-
-TODO: Write usage instructions here
-
 ## History
 
-* 0.1.0 - Initial release
+* 0.1.0 - Initial release, brought over from schema_plus 1.x via 2.0.0.pre*
 
 ## Development & Testing
 

@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = SchemaPlus::ForeignKeys::VERSION
   gem.authors       = ["ronen barzel"]
   gem.email         = ["ronen@barzel.org"]
-  gem.summary       = %q{TODO: Write a short summary. Required.}
-  gem.description   = %q{TODO: Write a longer description. Optional.}
+  gem.summary       = %q{Extended support for foreign key constraints in ActiveRecord}
+  gem.description   = %q{Extended support for foreign key constraints in ActiveRecord, including: definition as column attribute; deferrable; and SQLite3 support; cleaner dumps; and more!}
   gem.homepage      = "https://github.com/SchemaPlus/schema_plus_foreign_keys"
   gem.license       = "MIT"
 

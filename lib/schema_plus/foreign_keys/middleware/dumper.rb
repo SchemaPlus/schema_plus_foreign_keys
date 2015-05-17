@@ -65,8 +65,8 @@ module SchemaPlus::ForeignKeys
               column.add_comment "foreign key references #{foreign_key.to_table.inspect} (below)"
             end
           end
-          env.table.statements += env.dump.data.inline_fks[env.table.name].map { |foreign_key|
-            foreign_key.to_dump(inline: true) unless dumped[foreign_key]
+          env.table.trailer += env.dump.data.inline_fks[env.table.name].map { |foreign_key|
+            foreign_key.to_dump unless dumped[foreign_key] # just in case we missed any.  don't think it can happen
           }.compact.sort
           env.table.trailer += env.dump.data.backref_fks[env.table.name].map { |foreign_key|
             foreign_key.to_dump

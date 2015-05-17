@@ -43,6 +43,14 @@ describe ActiveRecord::Migration do
       expect(@model).to reference(:users, :id).on(:user)
     end
 
+    it "should create foreign key with default column" do
+      recreate_table(@model) do |t|
+        t.integer :user_id
+        t.foreign_key :users
+      end
+      expect(@model).to reference(:users, :id).on(:user_id)
+    end
+
     it "should create foreign key with different reference" do
       recreate_table(@model) do |t|
         t.integer :author_id, :foreign_key => { :references => :users }

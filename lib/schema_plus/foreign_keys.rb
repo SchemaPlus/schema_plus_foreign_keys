@@ -11,7 +11,6 @@ require_relative 'foreign_keys/middleware/dumper'
 require_relative 'foreign_keys/middleware/migration'
 require_relative 'foreign_keys/middleware/model'
 require_relative 'foreign_keys/middleware/mysql'
-require_relative 'foreign_keys/middleware/schema'
 require_relative 'foreign_keys/middleware/sql'
 
 module SchemaPlus::ForeignKeys
@@ -63,12 +62,11 @@ module SchemaPlus::ForeignKeys
   end
 
   # Initialization block is passed a global Config instance that can be
-  # used to configure SchemaPlus::ForeignKeys behavior.  E.g., if you want to disable
-  # automation creation of foreign key constraints for columns name *_id,
-  # put the following in config/initializers/schema_plus_foreign_keys.rb :
+  # used to configure SchemaPlus::ForeignKeys behavior.  E.g., put
+  # something like the following in config/initializers/schema_plus_foreign_keys.rb :
   #
   #    SchemaPlus::ForeignKeys.setup do |config|
-  #       config.auto_create = false
+  #       config.on_update = :cascade
   #    end
   #
   def self.setup # :yields: config

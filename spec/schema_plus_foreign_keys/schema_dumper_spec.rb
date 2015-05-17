@@ -3,10 +3,7 @@ require 'stringio'
 
 describe "Schema dump" do
 
-  before(:all) do
-    SchemaPlus::ForeignKeys.setup do |config|
-      config.auto_create = false
-    end
+  before(:each) do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
         connection.tables.each do |table| drop_table table, force: :cascade end
@@ -108,7 +105,7 @@ describe "Schema dump" do
   end
 
   context "with cyclic foreign key constraints", :sqlite3 => :skip do
-    before(:all) do
+    before(:each) do
       ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, User.table_name, column: :commenter_id)
       ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, Post.table_name, column: :post_id)
       ActiveRecord::Base.connection.add_foreign_key(Post.table_name, Comment.table_name, column: :first_comment_id)
@@ -135,11 +132,8 @@ describe "Schema dump" do
     end
 
     context 'with complicated schemas' do
-      before(:all) do
+      before(:each) do
 
-        SchemaPlus::ForeignKeys.setup do |config|
-          config.auto_create = false
-        end
         ActiveRecord::Migration.suppress_messages do
           ActiveRecord::Schema.define do
             connection.tables.each do |table| drop_table table, force: :cascade end

@@ -4,7 +4,7 @@ require 'spec_helper'
 describe ActiveRecord::Migration do
 
   before(:each) do
-    define_schema(:auto_create => true) do
+    define_schema do
 
       create_table :users, :force => true do |t|
         t.string :login, :index => { :unique => true }
@@ -30,21 +30,10 @@ describe ActiveRecord::Migration do
     class Comment < ::ActiveRecord::Base ; end
   end
 
-  around(:each) do |example|
-    with_fk_config(:auto_create => true, :auto_index => true) { example.run }
-  end
-
   context "when table is created" do
 
     before(:each) do
       @model = Post
-    end
-
-    it "should create auto foreign keys" do
-      recreate_table(@model) do |t|
-        t.integer :user_id
-      end
-      expect(@model).to reference(:users, :id).on(:user_id)
     end
 
     it "should create explicit foreign key with default reference" do
@@ -125,7 +114,7 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key using t.belongs_to" do
       recreate_table(@model) do |t|
-        t.belongs_to :user
+        t.belongs_to :user, :foreign_key => true
       end
       expect(@model).to reference(:users, :id).on(:user_id)
     end
@@ -139,7 +128,7 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key using t.references" do
       recreate_table(@model) do |t|
-        t.references :user
+        t.references :user, :foreign_key => true
       end
       expect(@model).to reference(:users, :id).on(:user_id)
     end
@@ -160,96 +149,9 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key to the same table on parent_id" do
       recreate_table(@model) do |t|
-        t.integer :parent_id
+        t.integer :parent_id, foreign_key: true
       end
       expect(@model).to reference(@model.table_name, :id).on(:parent_id)
-    end
-
-    [:references, :belongs_to].each do |reftype|
-
-      context "when define #{reftype}" do
-
-        before(:each) do
-          @model = Comment
-        end
-
-        it "should create foreign key" do
-          create_reference(reftype, :post)
-          expect(@model).to reference(:posts, :id).on(:post_id)
-        end
-
-        it "should not create a foreign_key if polymorphic" do
-          create_reference(reftype, :post, :polymorphic => true)
-          expect(@model).not_to reference(:posts, :id).on(:post_id)
-        end
-
-        it "should create an index implicitly" do
-          create_reference(reftype, :post)
-          expect(@model).to have_index.on(:post_id)
-        end
-
-        it "should create exactly one index explicitly (#157)" do
-          create_reference(reftype, :post, :index => true)
-          expect(@model).to have_index.on(:post_id)
-        end
-
-        it "should respect :unique (#157)" do
-          create_reference(reftype, :post, :index => :unique)
-          expect(@model).to have_unique_index.on(:post_id)
-        end
-
-        it "should create a two-column index if polymophic and index requested" do
-          create_reference(reftype, :post, :polymorphic => true, :index => true)
-          expect(@model).to have_index.on([:post_id, :post_type])
-        end
-
-        protected
-
-        def create_reference(reftype, column_name, *args)
-          recreate_table(@model) do |t|
-            t.send reftype, column_name, *args
-          end
-        end
-
-      end
-    end
-
-    it "should auto-index foreign keys only" do
-      recreate_table(@model) do |t|
-        t.integer :user_id
-        t.integer :application_id, :references => nil
-        t.integer :state
-      end
-      expect(@model).to have_index.on(:user_id)
-      expect(@model).not_to have_index.on(:application_id)
-      expect(@model).not_to have_index.on(:state)
-    end
-
-    it "should override foreign key auto_create positively" do
-      with_fk_config(:auto_create => false) do
-        recreate_table @model, :foreign_keys => {:auto_create => true} do |t|
-          t.integer :user_id
-        end
-        expect(@model).to reference(:users, :id).on(:user_id)
-      end
-    end
-
-    it "should override foreign key auto_create negatively" do
-      with_fk_config(:auto_create => true) do
-        recreate_table @model, :foreign_keys => {:auto_create => false} do |t|
-          t.integer :user_id
-        end
-        expect(@model).not_to reference.on(:user_id)
-      end
-    end
-
-    it "should override foreign key auto_index positively" do
-      with_fk_config(:auto_index => false) do
-        recreate_table @model, :foreign_keys => {:auto_index => true} do |t|
-          t.integer :user_id
-        end
-        expect(@model).to have_index.on(:user_id)
-      end
     end
 
     actions = [:cascade, :restrict, :nullify, :set_default, :no_action]
@@ -321,7 +223,7 @@ describe ActiveRecord::Migration do
     it "should use default on_delete action" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model do |t|
-          t.integer :user_id
+          t.integer :user_id, foreign_key: true
         end
         expect(@model).to reference.on(:user_id).on_delete(:cascade)
       end
@@ -330,7 +232,7 @@ describe ActiveRecord::Migration do
     it "should override on_update action per table" do
       with_fk_config(:on_update => :cascade) do
         recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
-          t.integer :user_id
+          t.integer :user_id, foreign_key: true
         end
         expect(@model).to reference.on(:user_id).on_update(:restrict)
       end
@@ -339,7 +241,7 @@ describe ActiveRecord::Migration do
     it "should override on_delete action per table" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
-          t.integer :user_id
+          t.integer :user_id, foreign_key: true
         end
         expect(@model).to reference.on(:user_id).on_delete(:restrict)
       end
@@ -379,24 +281,6 @@ describe ActiveRecord::Migration do
       }.to raise_error(ArgumentError)
     end
 
-    it "should override foreign key auto_index negatively", :mysql => :skip do
-      with_fk_config(:auto_index => true) do
-        recreate_table @model, :foreign_keys => {:auto_index => false} do |t|
-          t.integer :user_id
-        end
-        expect(@model).not_to have_index.on(:user_id)
-      end
-    end
-
-    it "should disable auto-index for a column", :mysql => :skip do
-      with_fk_config(:auto_index => true) do
-        recreate_table @model do |t|
-          t.integer :user_id, :index => false
-        end
-        expect(@model).not_to have_index.on(:user_id)
-      end
-    end
-
   end
 
   context "when table is changed" do
@@ -408,7 +292,7 @@ describe ActiveRecord::Migration do
 
       it "should create a foreign key constraint"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.integer :user_id
+          t.integer :user_id, foreign_key: true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end
@@ -420,7 +304,7 @@ describe ActiveRecord::Migration do
           migration = Class.new ::ActiveRecord::Migration do
             define_method(:change) {
               change_table("comments", :bulk => bulk) do |t|
-                t.integer :user_id
+                t.integer :user_id, foreign_key: true
               end
             }
           end
@@ -434,24 +318,14 @@ describe ActiveRecord::Migration do
 
       it "should create a foreign key constraint using :references"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.references :user
+          t.references :user, foreign_key: true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end
 
-      it "should accept index shorthand when using :references"+suffix, :sqlite3 => :skip do
-        with_fk_config(:auto_index => false) do
-          change_table(@model, :bulk => bulk) do |t|
-            t.references :user, :index => true
-          end
-        end
-        expect(@model).to have_index.on(:user_id)
-      end
-
-
       it "should create a foreign key constraint using :belongs_to"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.belongs_to :user
+          t.belongs_to :user, foreign_key: true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end
@@ -465,7 +339,7 @@ describe ActiveRecord::Migration do
     end
 
     it "should create foreign key" do
-      add_column(:post_id, :integer) do
+      add_column(:post_id, :integer, foreign_key: true) do
         expect(@model).to reference(:posts, :id).on(:post_id)
       end
     end
@@ -489,57 +363,14 @@ describe ActiveRecord::Migration do
     end
 
     it "should create foreign key to the same table on parent_id" do
-      add_column(:parent_id, :integer) do
+      add_column(:parent_id, :integer, foreign_key: true) do
         expect(@model).to reference(@model.table_name, :id).on(:parent_id)
       end
     end
 
-    it "shouldn't create foreign key if column doesn't look like foreign key" do
-      add_column(:views_count, :integer) do
-        expect(@model).not_to reference.on(:views_count)
-      end
-    end
-
-    it "shouldn't create foreign key if specified explicitly" do
-      add_column(:post_id, :integer, :foreign_key => false) do
-        expect(@model).not_to reference.on(:post_id)
-      end
-    end
-
-    it "shouldn't create foreign key if specified explicitly by shorthand" do
-      add_column(:post_id, :integer, :references => nil) do
-        expect(@model).not_to reference.on(:post_id)
-      end
-    end
-
-    it "should auto-index if specified in global options" do
-      SchemaPlus::ForeignKeys.config.auto_index = true
-      add_column(:post_id, :integer) do
-        expect(@model).to have_index.on(:post_id)
-      end
-      SchemaPlus::ForeignKeys.config.auto_index = false
-    end
-
-    it "should auto-index foreign keys only" do
-      SchemaPlus::ForeignKeys.config.auto_index = true
-      add_column(:state, :integer) do
-        expect(@model).not_to have_index.on(:state)
-      end
-      SchemaPlus::ForeignKeys.config.auto_index = false
-    end
-
-    # MySQL creates an index on foreign key and we can't override that
-    it "should allow to overwrite auto_index options in column definition", :mysql => :skip do
-      SchemaPlus::ForeignKeys.config.auto_index = true
-      add_column(:post_id, :integer, :index => false) do
-        expect(@model).not_to have_index.on(:post_id)
-      end
-      SchemaPlus::ForeignKeys.config.auto_index = false
-    end
-
     it "should use default on_update action" do
       SchemaPlus::ForeignKeys.config.on_update = :cascade
-      add_column(:post_id, :integer) do
+      add_column(:post_id, :integer, foreign_key: true) do
         expect(@model).to reference.on(:post_id).on_update(:cascade)
       end
       SchemaPlus::ForeignKeys.config.on_update = nil
@@ -547,7 +378,7 @@ describe ActiveRecord::Migration do
 
     it "should use default on_delete action" do
       SchemaPlus::ForeignKeys.config.on_delete = :cascade
-      add_column(:post_id, :integer) do
+      add_column(:post_id, :integer, foreign_key: true) do
         expect(@model).to reference.on(:post_id).on_delete(:cascade)
       end
       SchemaPlus::ForeignKeys.config.on_delete = nil
@@ -563,7 +394,7 @@ describe ActiveRecord::Migration do
     end
 
     it "should create foreign key with default name" do
-      add_column(:post_id, :integer) do
+      add_column(:post_id, :integer, foreign_key: true) do
         expect(@model).to reference(:posts, :id).with_name("fk_#{@model.table_name}_post_id")
       end
     end
@@ -571,12 +402,10 @@ describe ActiveRecord::Migration do
     protected
     def add_column(column_name, *args)
       table = @model.table_name
-      ActiveRecord::Migration.suppress_messages do
-        ActiveRecord::Migration.add_column(table, column_name, *args)
-        @model.reset_column_information
-        yield if block_given?
-        ActiveRecord::Migration.remove_column(table, column_name)
-      end
+      ActiveRecord::Migration.add_column(table, column_name, *args)
+      @model.reset_column_information
+      yield if block_given?
+      ActiveRecord::Migration.remove_column(table, column_name)
     end
 
   end
@@ -599,7 +428,7 @@ describe ActiveRecord::Migration do
 
         before(:each) do
           recreate_table @model do |t|
-            t.integer :user_id
+            t.integer :user_id, foreign_key: true
           end
         end
 
@@ -617,12 +446,6 @@ describe ActiveRecord::Migration do
           expect(@model).not_to reference(:users)
         end
 
-        it "should remove auto-created index if foreign key is removed" do
-          expect(@model).to have_index.on(:user_id)  # sanity check that index was auto-created
-          change_column :user_id, :integer, :foreign_key => { :references => nil }
-          expect(@model).not_to have_index.on(:user_id)
-        end
-
         it "should reference pointed table afterwards if new one is created" do
           change_column :user_id, :integer, :foreign_key => { :references => :members }
           expect(@model).to reference(:members)
@@ -633,43 +456,6 @@ describe ActiveRecord::Migration do
           expect(@model).to reference(:users)
         end
 
-        it "should maintain foreign key if it's unaffected by change, even if auto_index is off" do
-          with_fk_config(:auto_create => false) do
-            change_column :user_id, :integer, :default => 0
-            expect(@model).to reference(:users)
-          end
-        end
-
-      end
-
-      context "if column defined without foreign key but with index" do
-        before(:each) do
-          recreate_table @model do |t|
-            t.integer :user_id, :foreign_key => false, :index => true
-          end
-        end
-
-        it "should create the index" do
-          expect(@model).to have_index.on(:user_id)
-        end
-
-        it "adding foreign key should not fail due to attempt to auto-create existing index" do
-          expect { change_column :user_id, :integer, :foreign_key => true }.to_not raise_error
-        end
-      end
-    end
-
-    context "without foreign keys" do
-
-      it "doesn't auto-add foreign keys" do
-        recreate_table @model do |t|
-          t.integer :user_id, :foreign_key => false
-          t.string :other_column
-        end
-        with_fk_auto_create do
-          change_column :other_column, :text
-        end
-        expect(@model).to_not reference(:users)
       end
 
     end
@@ -689,7 +475,7 @@ describe ActiveRecord::Migration do
     before(:each) do
       @model = Comment
       recreate_table @model do |t|
-        t.integer :post_id
+        t.integer :post_id, foreign_key: true
       end
     end
 
@@ -697,12 +483,6 @@ describe ActiveRecord::Migration do
       expect(@model).to reference(:posts)
       remove_column(:post_id)
       expect(@model).not_to reference(:posts)
-    end
-
-    it "should remove an index" do
-      expect(@model).to have_index.on(:post_id)
-      remove_column(:post_id)
-      expect(@model).not_to have_index.on(:post_id)
     end
 
     protected
@@ -721,17 +501,12 @@ describe ActiveRecord::Migration do
     before(:each) do
       @model = Comment
       recreate_table @model do |t|
-        t.integer :user_id
+        t.integer :user_id, foreign_key: true
         t.integer :xyz, :index => true
       end
       ActiveRecord::Migration.suppress_messages do
         ActiveRecord::Migration.rename_table @model.table_name, :newname
       end
-    end
-
-    it "should rename fk indexes" do
-      index = ActiveRecord::Base.connection.indexes(:newname).find(&its.columns == ['user_id'])
-      expect(index.name).to match(/^fk__newname_/)
     end
 
     it "should rename foreign key constraints", :sqlite3 => :skip do

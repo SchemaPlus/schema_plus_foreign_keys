@@ -59,14 +59,6 @@ module SchemaPlus::ForeignKeys
           is_reference = (env.type == :reference)
           is_polymorphic = is_reference && env.options[:polymorphic]
 
-          # usurp index creation from AR.  That's necessary to make
-          # auto_index work properly
-          #REPL index = options.delete(:index) unless is_polymorphic
-          #if is_reference
-          #  options[:foreign_key] = false
-          #  options[:_is_reference] = true
-          #end
-
           # usurp foreign key creation from AR, since it doesn't support
           # all our features
           env.options[:foreign_key] = false 
@@ -92,15 +84,13 @@ module SchemaPlus::ForeignKeys
           config = (env.caller.try(:schema_plus_foreign_keys_config) || SchemaPlus::ForeignKeys.config)
           fk_opts = get_fk_opts(env, config)
 
-          # remove existing fk and auto-generated index in case of change of fk on existing column
+          # remove existing fk in case of change of fk on existing column
           if env.operation == :change and fk_opts # includes :none for explicitly off
             remove_foreign_key_if_exists(env)
-            #REPL remove_auto_index_if_exists(env)
           end
 
           fk_opts = nil if fk_opts == :none
 
-          #REPL create_index(env, fk_opts, config)
           create_fk(env, fk_opts) if fk_opts
 
           if reverting
@@ -113,23 +103,6 @@ module SchemaPlus::ForeignKeys
           end
 
         end
-
-        #REPL def auto_index_name(env)
-        #REPL   ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.auto_index_name(env.table_name, env.column_name)
-        #REPL end
-
-        #REPL def create_index(env, fk_opts, config)
-        #REPL   # create index if requested explicity or implicitly due to auto_index
-        #REPL   index = env.options[:index]
-        #REPL   index = { :name => auto_index_name(env) } if index.nil? and fk_opts && config.auto_index?
-        #REPL   return unless index
-        #REPL   case env.caller
-        #REPL   when ::ActiveRecord::ConnectionAdapters::TableDefinition
-        #REPL     env.caller.index(env.column_name, index)
-        #REPL   else
-        #REPL     env.caller.add_index(env.table_name, env.column_name, index)
-        #REPL   end
-        #REPL end
 
         def create_fk(env, fk_opts)
           references = fk_opts.delete(:references)
@@ -155,10 +128,6 @@ module SchemaPlus::ForeignKeys
         def remove_foreign_key_if_exists(env)
           env.caller.remove_foreign_key(env.table_name.to_s, column: env.column_name.to_s, :if_exists => true)
         end
-
-        #REPL def remove_auto_index_if_exists(env)
-        #REPL   env.caller.remove_index(env.table_name, :name => auto_index_name(env), :column => env.column_name, :if_exists => true)
-        #REPL end
 
         def default_table_name(env)
           if env.column_name.to_s == 'parent_id'

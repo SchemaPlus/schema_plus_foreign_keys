@@ -126,29 +126,6 @@ module SchemaPlus::ForeignKeys
         end
 
 
-        # called from individual adpaters, after renaming table from old
-        # name to
-        def rename_foreign_keys(oldname, newname) #:nodoc:
-          foreign_keys(newname).each do |fk|
-            index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, fk.column)}
-            begin
-              remove_foreign_key(newname, name: fk.name)
-            rescue NotImplementedError
-              # sqlite3 can't remove foreign keys, so just skip it
-            end
-            # rename the index only when the fk constraint doesn't exist.
-            # mysql doesn't allow the rename (which is a delete & add)
-            # if the index is on a foreign key constraint
-            rename_index(newname, index.name, ForeignKeyDefinition.auto_index_name(newname, index.columns)) if index
-            begin
-              add_foreign_key(newname, fk.to_table, :column => fk.column, :primary_key => fk.primary_key, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
-            rescue NotImplementedError
-              # sqlite3 can't add foreign keys, so just skip it
-            end
-          end
-        end
-
-
         #####################################################################
         #
         # The functions below here are abstract; each subclass should

@@ -14,11 +14,6 @@ module SchemaPlus::ForeignKeys
           super table_name, column_name, type, options
         end
 
-        def rename_table(oldname, newname)
-          super
-          rename_foreign_keys(oldname, newname)
-        end
-
         def remove_foreign_key(*args)
           from_table, to_table, options = normalize_remove_foreign_key_args(*args)
           if options[:if_exists]

@@ -6,11 +6,6 @@ module SchemaPlus::ForeignKeys
       # enhancements
       module PostgresqlAdapter
 
-        def rename_table(oldname, newname) #:nodoc:
-          super
-          rename_foreign_keys(oldname, newname)
-        end
-
         def foreign_keys(table_name, name = nil) #:nodoc:
           load_foreign_keys(<<-SQL, name)
         SELECT f.conname, pg_get_constraintdef(f.oid), t.relname

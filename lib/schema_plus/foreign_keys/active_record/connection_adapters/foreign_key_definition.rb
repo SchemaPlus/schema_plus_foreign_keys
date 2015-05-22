@@ -116,10 +116,6 @@ module SchemaPlus::ForeignKeys
           "fk_#{fixup_schema_name(from_table)}_#{Array.wrap(column).join('_and_')}"
         end
 
-        def self.auto_index_name(from_table, column_name)
-          "fk__#{fixup_schema_name(from_table)}_#{Array.wrap(column_name).join('_and_')}"
-        end
-
         def self.fixup_schema_name(table_name)
           # replace . with _
           table_name.to_s.gsub(/[.]/, '_')

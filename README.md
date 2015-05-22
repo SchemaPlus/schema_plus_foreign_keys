@@ -149,6 +149,7 @@ SchemaPlus::ForeignKeys is tested on:
 
 ## History
 
+* 0.1.1 - Cleanup; use (new) core Migration::RenameTable stack rather than monkey patching.
 * 0.1.0 - Initial release, brought over from schema_plus 1.x via 2.0.0.pre*
 
 ## Development & Testing

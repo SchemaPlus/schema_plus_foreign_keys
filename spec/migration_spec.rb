@@ -106,6 +106,17 @@ describe ActiveRecord::Migration do
       expect(@model).to reference(:users, :id).with_name("wugga")
     end
 
+    it "handles very long names" do
+      table = ("ta"*15)
+      column = ("co"*15 + "_id")
+      expect {
+        ActiveRecord::Migration.create_table table do |t|
+          t.integer column, references: :members
+        end
+      }.not_to raise_error
+      expect(ActiveRecord::Base.connection.foreign_keys(table).first.column).to eq(column)
+    end
+
     it "should allow multiple foreign keys to be made" do
       recreate_table(@model) do |t|
         t.integer :user_id, :references => :users

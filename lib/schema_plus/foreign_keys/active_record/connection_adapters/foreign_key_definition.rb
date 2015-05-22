@@ -1,3 +1,4 @@
+require 'openssl'
 require 'active_record/connection_adapters/abstract/schema_definitions'
 
 module SchemaPlus::ForeignKeys
@@ -113,7 +114,9 @@ module SchemaPlus::ForeignKeys
         end
 
         def self.default_name(from_table, column)
-          "fk_#{fixup_schema_name(from_table)}_#{Array.wrap(column).join('_and_')}"
+          name = "fk_#{fixup_schema_name(from_table)}_#{Array.wrap(column).join('_and_')}"
+          name = name.slice(0, 27) + "_" + OpenSSL::Digest::MD5.new.hexdigest(name) if name.length > 60
+          name
         end
 
         def self.fixup_schema_name(table_name)

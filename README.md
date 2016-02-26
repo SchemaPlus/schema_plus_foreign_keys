@@ -102,7 +102,7 @@ constraint, they normally default to whatever the DBMS's default behavior is.
 But you can also configure a global default (e.g. in a Rails initializer):
 
 ```ruby
-SchemaPlus::ForeignKey.setup do |config|
+SchemaPlus::ForeignKeys.setup do |config|
     config.on_update = :cascade   # default is nil, meaning use default dbms behavior
     config.on_delete = :nullify   # default is nil, meaning use default dbms behavior
 end

@@ -3,8 +3,8 @@ module SchemaPlus::ForeignKeys
     module Sql
       module Table
         def after(env)
-          foreign_keys = case ::ActiveRecord.version
-                         when Gem::Version.new("4.2.0") then env.table_definition.foreign_keys
+          foreign_keys = case 
+                         when Gem::Requirement.new('4.2.0').satisfied_by?(::ActiveRecord.version) then env.table_definition.foreign_keys
                          else env.table_definition.foreign_keys.values.tap { |v| v.flatten! }
                          end
 

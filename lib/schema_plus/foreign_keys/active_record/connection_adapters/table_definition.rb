@@ -67,7 +67,7 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
 
     attr_accessor :schema_plus_foreign_keys_config #:nodoc:
 
-    if ActiveRecord.version == Gem::Version.new("4.2.0")
+    if Gem::Requirement.new('= 4.2.0').satisfied_by?(::ActiveRecord.version)
       def foreign_keys
         @foreign_keys ||= []
       end
@@ -75,9 +75,13 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
       def foreign_keys_for_table(*)
         foreign_keys
       end
-    else
+    elsif Gem::Requirement.new('< 4.2.6').satisfied_by?(::ActiveRecord.version)
       def foreign_keys_for_table(table)
         foreign_keys[table] ||= []
+      end
+    else
+      def foreign_keys_for_table(*)
+        foreign_keys
       end
     end
 

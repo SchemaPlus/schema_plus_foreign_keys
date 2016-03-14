@@ -150,6 +150,7 @@ SchemaPlus::ForeignKeys is tested on:
 
 ## History
 
+* 0.1.3 - Support aciverecord 4.2.6.  Thanks to [@btsuhako](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Abtsuhako) and [@dholdren](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Adholdren)
 * 0.1.2 - Handle very long names
 * 0.1.1 - Cleanup; use (new) core Migration::RenameTable stack rather than monkey patching.
 * 0.1.0 - Initial release, brought over from schema_plus 1.x via 2.0.0.pre*

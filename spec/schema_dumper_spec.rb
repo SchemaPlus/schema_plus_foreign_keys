@@ -59,13 +59,13 @@ describe "Schema dump" do
 
   it "should include foreign_key name" do
     with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
-      expect(dump_posts).to match(/user_id.*foreign_key.*users.*name: "yippee"/)
+      expect(dump_posts).to match(/user_id.*foreign_key.*users.*:name=>"yippee"/)
     end
   end
 
   it "should respect foreign key's primary key" do
     with_foreign_key Post, :user_id, :users, :first_post_id do
-      expect(dump_posts).to match(%r{t.integer\s+"user_id".*foreign_key.*primary_key: "first_post_id"})
+      expect(dump_posts).to match(%r{t.integer\s+"user_id".*foreign_key.*:primary_key=>"first_post_id"})
     end
   end
 
@@ -107,7 +107,7 @@ describe "Schema dump" do
 
   it "should include foreign_key options" do
     with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :nullify do
-      expect(dump_posts).to match(%q[t.integer\s*"user_id",.*foreign_key: {references: "users", name: "fk_posts_user_id", on_update: :cascade, on_delete: :nullify}])
+      expect(dump_posts).to match(%q[t.integer\s*"user_id",.*:foreign_key=>{:references=>"users", :name=>"fk_posts_user_id", :on_update=>:cascade, :on_delete=>:nullify}])
     end
   end
 

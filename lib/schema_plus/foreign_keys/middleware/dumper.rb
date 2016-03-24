@@ -67,11 +67,11 @@ module SchemaPlus::ForeignKeys
           dumped = {}
           env.table.columns.each do |column|
             if (foreign_key = env.dump.data.inline_fks[env.table.name].find(&its.column.to_s == column.name))
-              column.add_option foreign_key.to_dump(column: true)
+              column.options[:foreign_key] = {references: foreign_key.to_table}.merge foreign_key.options_for_dump
               dumped[foreign_key] = true
             end
             if (foreign_key = env.dump.data.backref_fks.values.flatten.find{|fk| fk.from_table.to_s == env.table.name && fk.column.to_s == column.name})
-              column.add_comment "foreign key references #{foreign_key.to_table.inspect} (below)"
+              column.comments << "foreign key references #{foreign_key.to_table.inspect} (below)"
             end
           end
           env.table.trailer += env.dump.data.inline_fks[env.table.name].map { |foreign_key|

@@ -72,23 +72,19 @@ module SchemaPlus::ForeignKeys
         end
 
         # Dumps a definition of foreign key.
-        def to_dump(column: nil)
-          dump = case
-                 when column then "foreign_key: {references:"
-                 else "add_foreign_key #{from_table.inspect},"
-                 end
-          dump << " #{to_table.inspect}"
+        def to_dump
+          opts = {column: self.column}.merge options_for_dump
+          dump = "add_foreign_key #{from_table.inspect}, #{to_table.inspect}, #{opts.to_s.sub(/^{(.*)}$/, '\1')}"
+        end
 
-          val_or_array = -> val { val.is_a?(Array) ? "[#{val.map(&:inspect).join(', ')}]" : val.inspect }
-
-          dump << ", column: #{val_or_array.call self.column}" unless column
-          dump << ", primary_key: #{val_or_array.call self.primary_key}" if custom_primary_key?
-          dump << ", name: #{name.inspect}" if name
-          dump << ", on_update: #{on_update.inspect}" if on_update
-          dump << ", on_delete: #{on_delete.inspect}" if on_delete
-          dump << ", deferrable: #{deferrable.inspect}" if deferrable
-          dump << "}" if column
-          dump
+        def options_for_dump
+          opts = {}
+          opts[:primary_key] = self.primary_key if custom_primary_key?
+          opts[:name] = name if name
+          opts[:on_update] = on_update if on_update
+          opts[:on_delete] = on_delete if on_delete
+          opts[:deferrable] = deferrable if deferrable
+          opts
         end
 
         def to_sql

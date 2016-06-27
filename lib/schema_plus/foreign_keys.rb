@@ -1,4 +1,5 @@
 require 'schema_plus/core'
+require 'its-it'
 require 'valuable'
 
 require_relative 'foreign_keys/version'

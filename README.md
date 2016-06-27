@@ -150,6 +150,7 @@ SchemaPlus::ForeignKeys is tested on:
 
 ## History
 
+* 0.1.6 - Missing require
 * 0.1.5 - Explicit gem dependencies
 * 0.1.4 - Upgrade schema_plus_core dependency
 * 0.1.3 - Support aciverecord 4.2.6.  Thanks to [@btsuhako](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Abtsuhako) and [@dholdren](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Adholdren)

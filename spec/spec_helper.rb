@@ -22,7 +22,7 @@ RSpec.configure do |config|
       begin
         example.run
       ensure
-        ActiveRecord::Base.connection.tables.each do |table|
+        ActiveRecord::Base.connection.data_sources.each do |table|
           ActiveRecord::Migration.drop_table table, force: :cascade
         end
       end
@@ -48,7 +48,7 @@ def define_schema(config={}, &block)
   with_fk_config(config) do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
-        connection.tables.each do |table|
+        connection.data_sources.each do |table|
           drop_table table, force: :cascade
         end
         instance_eval &block

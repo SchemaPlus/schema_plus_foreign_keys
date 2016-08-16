@@ -67,24 +67,6 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
 
     attr_accessor :schema_plus_foreign_keys_config #:nodoc:
 
-    if Gem::Requirement.new('= 4.2.0').satisfied_by?(::ActiveRecord.version)
-      def foreign_keys
-        @foreign_keys ||= []
-      end
-
-      def foreign_keys_for_table(*)
-        foreign_keys
-      end
-    elsif Gem::Requirement.new('< 4.2.6').satisfied_by?(::ActiveRecord.version)
-      def foreign_keys_for_table(table)
-        foreign_keys[table] ||= []
-      end
-    else
-      def foreign_keys_for_table(*)
-        foreign_keys
-      end
-    end
-
     def foreign_key(*args) # (column_names, to_table, primary_key=nil, options=nil)
       options = args.extract_options!
       case args.length
@@ -104,7 +86,10 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
       options.merge!(:column => column_names)
       options.reverse_merge!(:name => ForeignKeyDefinition.default_name(self.name, column_names))
       fk = ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(to_table), options)
-      foreign_keys_for_table(fk.to_table) << fk
+
+      # We used to have shims for ActiveRecord versions below 4.2.6, but they aren't needed anymore
+      # since we only support AR5 in this branch
+      foreign_keys << fk
       self
     end
 

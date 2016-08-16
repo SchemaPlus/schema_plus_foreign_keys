@@ -1,3 +1,5 @@
+require_relative 'abstract/schema_creation'
+
 module SchemaPlus::ForeignKeys
   module ActiveRecord
     # SchemaPlus::ForeignKeys adds several methods to the connection adapter (as returned by ActiveRecordBase#connection).  See AbstractAdapter for details.

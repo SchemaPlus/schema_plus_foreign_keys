@@ -8,6 +8,12 @@ module SchemaPlus::ForeignKeys
 
         # :enddoc:
 
+        # Even though SQLite3 has limited support for foreign keys, ActiveRecord does not
+        # enable it by default.
+        def supports_foreign_keys?
+          true
+        end
+
         def add_foreign_key(table_name, to_table, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} to #{to_table.inspect})"
         end

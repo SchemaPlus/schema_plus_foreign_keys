@@ -14,7 +14,7 @@ module SchemaPlus::ForeignKeys
           @inline_fks = Hash.new{ |h, k| h[k] = [] }
           @backref_fks = Hash.new{ |h, k| h[k] = [] }
 
-          env.connection.data_sources.each do |table|
+          env.connection.tables_without_deprecation.each do |table|
             if (fks = env.connection.foreign_keys(table)).any?
               env.dump.data.has_fks = true
               @inline_fks[table] = fks

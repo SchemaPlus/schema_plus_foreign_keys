@@ -13,6 +13,7 @@ require_relative 'foreign_keys/middleware/migration'
 require_relative 'foreign_keys/middleware/model'
 require_relative 'foreign_keys/middleware/mysql'
 require_relative 'foreign_keys/middleware/sql'
+require_relative 'foreign_keys/helpers/compatibility'
 
 module SchemaPlus::ForeignKeys
   module ActiveRecord
@@ -76,4 +77,5 @@ module SchemaPlus::ForeignKeys
 
 end
 
+SchemaMonkey.register SchemaPlus::Compatibility
 SchemaMonkey.register SchemaPlus::ForeignKeys

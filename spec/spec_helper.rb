@@ -22,10 +22,8 @@ RSpec.configure do |config|
       begin
         example.run
       ensure
-        ActiveSupport::Deprecation.silence do
-          ActiveRecord::Base.connection.tables_without_deprecation.each do |table|
-            ActiveRecord::Migration.drop_table table, force: :cascade
-          end
+        ActiveRecord::Base.connection.tables_without_deprecation.each do |table|
+          ActiveRecord::Migration.drop_table table, force: :cascade
         end
       end
     end
@@ -50,10 +48,8 @@ def define_schema(config={}, &block)
   with_fk_config(config) do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
-        ActiveSupport::Deprecation.silence do
-          connection.tables_without_deprecation.each do |table|
-            drop_table table, force: :cascade
-          end
+        connection.tables_without_deprecation.each do |table|
+          drop_table table, force: :cascade
         end
         instance_eval &block
       end

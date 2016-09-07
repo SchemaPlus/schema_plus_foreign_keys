@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "activerecord", ">= 4.2", "< 5.1"
   gem.add_dependency "schema_plus_core"
-  gem.add_dependency "schema_plus_compatibility", "~> 0.1"
+  gem.add_dependency "schema_plus_compatibility", "~> 0.2"
   gem.add_dependency "valuable"
   gem.add_dependency "its-it", "~> 1.2"
 

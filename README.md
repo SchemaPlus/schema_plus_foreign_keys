@@ -1,7 +1,6 @@
 [![Gem Version](https://badge.fury.io/rb/schema_plus_foreign_keys.svg)](http://badge.fury.io/rb/schema_plus_foreign_keys)
 [![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus_foreign_keys.svg)](http://travis-ci.org/SchemaPlus/schema_plus_foreign_keys)
 [![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus_foreign_keys.svg)](https://coveralls.io/r/SchemaPlus/schema_plus_foreign_keys)
-[![Dependency Status](https://gemnasium.com/lomba/schema_plus_foreign_keys.svg)](https://gemnasium.com/SchemaPlus/schema_plus_foreign_keys)
 
 # SchemaPlus::ForeignKeys
 

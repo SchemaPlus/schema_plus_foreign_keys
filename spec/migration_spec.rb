@@ -329,7 +329,7 @@ describe ActiveRecord::Migration do
         it "should remove a foreign key constraint"+suffix, :sqlite3 => :skip do
           Comment.reset_column_information
           expect(Comment).to reference(:users, :id).on(:user_id)
-          migration = Class.new ::ActiveRecord::Migration do
+          migration = Class.new ::ActiveRecord::Migration.latest_version do
             define_method(:change) {
               change_table("comments", :bulk => bulk) do |t|
                 t.integer :user_id, foreign_key: true

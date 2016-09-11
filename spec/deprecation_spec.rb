@@ -122,6 +122,7 @@ describe 'Deprecations' do
 
     it "deprecates :set_null" do
       expect(ActiveSupport::Deprecation).to receive(:warn).with(/set_null.*nullify/)
+      allow(ActiveSupport::Deprecation).to receive(:warn).with(/table_exists\? currently checks/)
       define_schema do
         create_table :posts
         create_table :comments do |t|
@@ -136,6 +137,7 @@ describe 'Deprecations' do
   describe "in table definition" do
     it "deprecates 3-column form" do
       expect(ActiveSupport::Deprecation).to receive(:warn).with(/positional arg.*primary_key/)
+      allow(ActiveSupport::Deprecation).to receive(:warn).with(/table_exists\? currently checks/)
       define_schema do
         create_table :posts, primary_key: :funky
         create_table :comments do |t|

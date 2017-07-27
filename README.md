@@ -145,6 +145,7 @@ SchemaPlus::ForeignKeys is tested on:
 * ruby **2.3.1** with activerecord **4.2.1**, using **mysql2**, **sqlite3** or **postgresql**
 * ruby **2.3.1** with activerecord **4.2.6**, using **mysql2**, **sqlite3** or **postgresql**
 * ruby **2.3.1** with activerecord **5.0**, using **mysql2**, **sqlite3** or **postgresql**
+* ruby **2.3.1** with activerecord **5.1**, using **mysql2**, **sqlite3** or **postgresql**
 
 <!-- SCHEMA_DEV: MATRIX - end -->
 

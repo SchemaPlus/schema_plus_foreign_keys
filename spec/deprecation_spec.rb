@@ -9,7 +9,7 @@ describe 'Deprecations' do
       define_schema do
         create_table :posts
         create_table :comments do |t|
-          t.references :post
+          t.integer :post_id
         end
       end
       class Comment < ::ActiveRecord::Base ; end
@@ -28,7 +28,7 @@ describe 'Deprecations' do
       define_schema do
         create_table :posts
         create_table :comments do |t|
-          t.references :post, foreign_key: true
+          t.integer :post_id, foreign_key: true
         end
       end
       class Comment < ::ActiveRecord::Base ; end
@@ -89,7 +89,7 @@ describe 'Deprecations' do
       define_schema do
         create_table :posts
         create_table :comments do |t|
-          t.references :post, foreign_key: true
+          t.integer :post_id, foreign_key: true
         end
       end
       class Comment < ::ActiveRecord::Base ; end
@@ -126,7 +126,7 @@ describe 'Deprecations' do
       define_schema do
         create_table :posts
         create_table :comments do |t|
-          t.references :post, references: :posts, on_delete: :set_null
+          t.integer :post_id, references: :posts, on_delete: :set_null
         end
       end
       expect(definition.on_delete).to eq(:nullify)
@@ -141,7 +141,7 @@ describe 'Deprecations' do
       define_schema do
         create_table :posts, primary_key: :funky
         create_table :comments do |t|
-          t.references :post
+          t.integer :post_id
           t.foreign_key :post_id, :posts, :funky
         end
       end
@@ -153,7 +153,7 @@ describe 'Deprecations' do
         define_schema do
           create_table :posts, primary_key: :funky
           create_table :comments do |t|
-            t.references :post
+            t.integer :post_id
             t.foreign_key :post_id, :posts, :funky, :town
           end
         end

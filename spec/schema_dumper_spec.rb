@@ -11,15 +11,15 @@ describe "Schema dump" do
         create_table :users, :force => true do |t|
           t.string :login
           t.datetime :deleted_at
-          t.references :first_post, index: { unique: true }
+          t.integer :first_post_id, index: { unique: true }
         end
 
         create_table :posts, :force => true do |t|
           t.text :body
-          t.references :user
-          t.references :first_comment
+          t.integer :user_id
+          t.integer :first_comment_id
           t.string :string_no_default
-          t.references :short
+          t.integer :short_id
           t.string :str_short
           t.integer :integer_col
           t.float :float_col
@@ -34,8 +34,8 @@ describe "Schema dump" do
 
         create_table :comments, :force => true do |t|
           t.text :body
-          t.references :post
-          t.references :commenter
+          t.integer :post_id
+          t.integer :commenter_id
         end
       end
     end
@@ -147,29 +147,29 @@ describe "Schema dump" do
 
             create_table :grade_systems, force: true do |t|
               t.string   :name
-              t.references  :school
-              t.references  :parent
-              t.references  :profile
+              t.integer  :school_id
+              t.integer  :parent_id
+              t.integer  :profile_id
             end
 
             create_table :schools, force: true do |t|
               t.string   :name
-              t.references  :default_grade_system
+              t.integer  :default_grade_system_id
             end
 
             create_table :academic_years, force: true do |t|
               t.string  :name
-              t.references :school
+              t.integer :school_id
             end
 
             create_table :buildings, force: true do |t|
               t.string   :name
-              t.references  :school
+              t.integer  :school_id
             end
 
             create_table :profiles, force: true do |t|
-              t.references  :school
-              t.references  :building
+              t.integer  :school_id
+              t.integer  :building_id
             end
 
           end

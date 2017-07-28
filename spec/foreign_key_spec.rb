@@ -11,7 +11,7 @@ describe "Foreign Key" do
           t.string :login
         end
         create_table :comments, :force => true do |t|
-          t.references :user
+          t.integer :user_id
           t.foreign_key :user_id, :users
         end
       end
@@ -41,13 +41,13 @@ describe "Foreign Key" do
 
         create_table :posts, :force => true do |t|
           t.text :body
-          t.references :user
-          t.references :author
+          t.integer :user_id
+          t.integer :author_id
         end
 
         create_table :comments, :force => true do |t|
           t.text :body
-          t.references :post
+          t.integer :post_id
           t.foreign_key :post_id, :posts
         end
       end
@@ -150,7 +150,7 @@ describe "Foreign Key" do
         before(:each) do
           migration.suppress_messages do
             migration.create_table :references, :force => true do |t|
-              t.references :post, :foreign_key => false
+              t.integer :post_id, :foreign_key => false
             end
           end
         end

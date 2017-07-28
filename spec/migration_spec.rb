@@ -111,7 +111,7 @@ describe ActiveRecord::Migration do
       column = ("co"*15 + "_id")
       expect {
         ActiveRecord::Migration.create_table table do |t|
-          t.integer column, references: :members
+          t.references column.chomp("_id"), references: :members, index: nil
         end
       }.not_to raise_error
       expect(ActiveRecord::Base.connection.foreign_keys(table).first.column).to eq(column)

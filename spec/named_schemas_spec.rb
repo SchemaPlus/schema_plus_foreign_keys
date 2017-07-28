@@ -22,7 +22,7 @@ describe "with multiple schemas" do
 
   before(:each) do
     define_schema do
-      create_table :users, :force => true do |t|
+      create_table :users, id: :integer, :force => true do |t|
         t.string :login
       end
     end
@@ -56,7 +56,7 @@ describe "with multiple schemas" do
     end
 
     it "should not find foreign keys in other schema" do
-      connection.create_table :comments, :force => true do |t|
+      connection.create_table :comments, id: :integer, :force => true do |t|
         t.integer :user_id, :foreign_key => false
       end
       Comment.reset_column_information
@@ -66,7 +66,7 @@ describe "with multiple schemas" do
     end
 
     it "should find foreign keys in this schema" do
-      connection.create_table :comments, :force => true do |t|
+      connection.create_table :comments, id: :integer, :force => true do |t|
         t.integer :user_id, :foreign_key => true
       end
       Comment.reset_column_information
@@ -80,11 +80,11 @@ describe "with multiple schemas" do
   context "foreign key migrations" do
     before(:each) do
       define_schema do
-        create_table "items", :force => true do |t|
+        create_table "items", id: :integer, :force => true do |t|
         end
-        create_table "schema_plus_test2.groups", :force => true do |t|
+        create_table "schema_plus_test2.groups", id: :integer, :force => true do |t|
         end
-        create_table "schema_plus_test2.members", :force => true do |t|
+        create_table "schema_plus_test2.members", id: :integer, :force => true do |t|
           t.integer :item_id, :foreign_key => true unless SchemaDev::Rspec::Helpers.mysql?
           t.integer :group_id, :foreign_key => { references: "schema_plus_test2.groups" }
         end

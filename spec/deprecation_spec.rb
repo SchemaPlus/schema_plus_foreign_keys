@@ -7,8 +7,8 @@ describe 'Deprecations' do
   describe "on add_foreign_key", sqlite3: :skip do
     before(:each) do
       define_schema do
-        create_table :posts
-        create_table :comments do |t|
+        create_table :posts, id: :integer
+        create_table :comments, id: :integer do |t|
           t.integer :post_id
         end
       end
@@ -26,8 +26,8 @@ describe 'Deprecations' do
   describe "on remove_foreign_key", sqlite3: :skip do
     before(:each) do
       define_schema do
-        create_table :posts
-        create_table :comments do |t|
+        create_table :posts, id: :integer
+        create_table :comments, id: :integer do |t|
           t.integer :post_id, foreign_key: true
         end
       end
@@ -87,8 +87,8 @@ describe 'Deprecations' do
   describe "on foreign key definition" do
     before(:each) do
       define_schema do
-        create_table :posts
-        create_table :comments do |t|
+        create_table :posts, id: :integer
+        create_table :comments, id: :integer do |t|
           t.integer :post_id, foreign_key: true
         end
       end
@@ -124,8 +124,8 @@ describe 'Deprecations' do
       expect(ActiveSupport::Deprecation).to receive(:warn).with(/set_null.*nullify/)
       allow(ActiveSupport::Deprecation).to receive(:warn).with(/table_exists\? currently checks/)
       define_schema do
-        create_table :posts
-        create_table :comments do |t|
+        create_table :posts, id: :integer
+        create_table :comments, id: :integer do |t|
           t.integer :post_id, references: :posts, on_delete: :set_null
         end
       end
@@ -139,8 +139,8 @@ describe 'Deprecations' do
       expect(ActiveSupport::Deprecation).to receive(:warn).with(/positional arg.*primary_key/)
       allow(ActiveSupport::Deprecation).to receive(:warn).with(/table_exists\? currently checks/)
       define_schema do
-        create_table :posts, primary_key: :funky
-        create_table :comments do |t|
+        create_table :posts, id: :integer, primary_key: :funky
+        create_table :comments, id: :integer do |t|
           t.integer :post_id
           t.foreign_key :post_id, :posts, :funky
         end
@@ -151,8 +151,8 @@ describe 'Deprecations' do
     it "raises error for 4 arguments" do
       expect {
         define_schema do
-          create_table :posts, primary_key: :funky
-          create_table :comments do |t|
+          create_table :posts, id: :integer, primary_key: :funky
+          create_table :comments, id: :integer do |t|
             t.integer :post_id
             t.foreign_key :post_id, :posts, :funky, :town
           end

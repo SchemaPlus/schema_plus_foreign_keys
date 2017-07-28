@@ -8,13 +8,13 @@ describe "Schema dump" do
       ActiveRecord::Schema.define do
         connection.tables_only.each do |table| drop_table table, force: :cascade end
 
-        create_table :users, :force => true do |t|
+        create_table :users, id: :integer, :force => true do |t|
           t.string :login
           t.datetime :deleted_at
           t.integer :first_post_id, index: { unique: true }
         end
 
-        create_table :posts, :force => true do |t|
+        create_table :posts, id: :integer, :force => true do |t|
           t.text :body
           t.integer :user_id
           t.integer :first_comment_id
@@ -32,7 +32,7 @@ describe "Schema dump" do
           t.boolean :boolean_col
         end
 
-        create_table :comments, :force => true do |t|
+        create_table :comments, id: :integer, :force => true do |t|
           t.text :body
           t.integer :post_id
           t.integer :commenter_id
@@ -145,29 +145,29 @@ describe "Schema dump" do
           ActiveRecord::Schema.define do
             connection.tables_only.each do |table| drop_table table, force: :cascade end
 
-            create_table :grade_systems, force: true do |t|
+            create_table :grade_systems, id: :integer, force: true do |t|
               t.string   :name
               t.integer  :school_id
               t.integer  :parent_id
               t.integer  :profile_id
             end
 
-            create_table :schools, force: true do |t|
+            create_table :schools, id: :integer, force: true do |t|
               t.string   :name
               t.integer  :default_grade_system_id
             end
 
-            create_table :academic_years, force: true do |t|
+            create_table :academic_years, id: :integer, force: true do |t|
               t.string  :name
               t.integer :school_id
             end
 
-            create_table :buildings, force: true do |t|
+            create_table :buildings, id: :integer, force: true do |t|
               t.string   :name
               t.integer  :school_id
             end
 
-            create_table :profiles, force: true do |t|
+            create_table :profiles, id: :integer, force: true do |t|
               t.integer  :school_id
               t.integer  :building_id
             end
@@ -215,7 +215,7 @@ describe "Schema dump" do
   def with_foreign_keys(model, columnsets)
     table_columns = model.columns.reject{|column| column.name == 'id'}
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+      ActiveRecord::Migration.create_table model.table_name, id: :integer, :force => true do |t|
         table_columns.each do |column|
           t.column column.name, column.type
         end
@@ -229,7 +229,7 @@ describe "Schema dump" do
       yield
     ensure
       ActiveRecord::Migration.suppress_messages do
-        ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+        ActiveRecord::Migration.create_table model.table_name, id: :integer, :force => true do |t|
           table_columns.each do |column|
             t.column column.name, column.type
           end

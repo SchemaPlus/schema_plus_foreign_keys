@@ -6,22 +6,22 @@ describe ActiveRecord::Migration do
   before(:each) do
     define_schema do
 
-      create_table :users, :force => true do |t|
+      create_table :users, id: :integer, :force => true do |t|
         t.string :login, :index => { :unique => true }
       end
 
-      create_table :members, :force => true do |t|
+      create_table :members, id: :integer, :force => true do |t|
         t.string :login
       end
 
-      create_table :comments, :force => true do |t|
+      create_table :comments, id: :integer, :force => true do |t|
         t.string :content
         t.integer :user
         t.integer :user_id
         t.foreign_key :user_id, :users, :primary_key => :id
       end
 
-      create_table :posts, :force => true do |t|
+      create_table :posts, id: :integer, :force => true do |t|
         t.string :content
       end
     end
@@ -565,7 +565,7 @@ describe ActiveRecord::Migration do
 
   def recreate_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.create_table model.table_name, opts.merge(:force => true), &block
+      ActiveRecord::Migration.create_table model.table_name, opts.merge(:force => true, :id =>:integer), &block
     end
     model.reset_column_information
   end

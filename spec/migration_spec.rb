@@ -80,7 +80,7 @@ describe ActiveRecord::Migration do
       hash = { :references => :users }
       hash_original = hash.dup
       recreate_table(@model) do |t|
-        t.references :author, :foreign_key => hash
+        t.references :author, :type => :integer, :foreign_key => hash
       end
       expect(hash).to eq(hash_original)
     end
@@ -142,35 +142,35 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key using t.belongs_to" do
       recreate_table(@model) do |t|
-        t.belongs_to :user, :foreign_key => true
+        t.belongs_to :user, :type => :integer, :foreign_key => true
       end
       expect(@model).to reference(:users, :id).on(:user_id)
     end
 
     it "should not create foreign key using t.belongs_to with :polymorphic => true" do
       recreate_table(@model) do |t|
-        t.belongs_to :user, :polymorphic => true
+        t.belongs_to :user, :type => :integer, :polymorphic => true
       end
       expect(@model).not_to reference(:users, :id).on(:user_id)
     end
 
     it "should create foreign key using t.references" do
       recreate_table(@model) do |t|
-        t.references :user, :foreign_key => true
+        t.references :user, :type => :integer, :foreign_key => true
       end
       expect(@model).to reference(:users, :id).on(:user_id)
     end
 
     it "should not create foreign key using t.references with :foreign_key => false" do
       recreate_table(@model) do |t|
-        t.references :user, :foreign_key => false
+        t.references :user, :type => :integer, :foreign_key => false
       end
       expect(@model).not_to reference(:users, :id).on(:user_id)
     end
 
     it "should not create foreign key using t.references with :polymorphic => true" do
       recreate_table(@model) do |t|
-        t.references :user, :polymorphic => true
+        t.references :user, :type => :integer, :polymorphic => true
       end
       expect(@model).not_to reference(:users, :id).on(:user_id)
     end
@@ -346,14 +346,14 @@ describe ActiveRecord::Migration do
 
       it "should create a foreign key constraint using :references"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.references :user, foreign_key: true
+          t.references :user, type: :integer, foreign_key: true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end
 
       it "should create a foreign key constraint using :belongs_to"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.belongs_to :user, foreign_key: true
+          t.belongs_to :user, type: :integer, foreign_key: true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end

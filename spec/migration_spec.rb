@@ -108,10 +108,10 @@ describe ActiveRecord::Migration do
 
     it "handles very long names" do
       table = ("ta"*15)
-      column = ("co"*15)
+      column = ("co"*15 + "_id")
       expect {
         ActiveRecord::Migration.create_table table do |t|
-          t.references column, references: :members
+          t.references column.chomp("_id"), references: :members
         end
       }.not_to raise_error
       expect(ActiveRecord::Base.connection.foreign_keys(table).first.column).to eq(column)

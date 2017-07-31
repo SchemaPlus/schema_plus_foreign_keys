@@ -48,11 +48,14 @@ Specify the target table and its primary key using the `:references` and `:prima
     t.integer :author_id, foreign_key: { references: [:people, :ssn] } # shortcut for both
     t.integer :author_id, foreign_key: { references: nil }             # same as foreign_key: false
 
-You can also specify other attributes:
+You can also specify other attributes that is supposed by Rails' `add_foreign_key`:
 
     t.integer :author_id, foreign_key: { name: "my_fk" }               # override default auto-generated constraint name
     t.integer :author_id, foreign_key: { on_delete: :cascade }
     t.integer :author_id, foreign_key: { on_update: :set_null }
+
+In addition, support for deferrable constraints is implemented:
+
     t.integer :author_id, foreign_key: { deferrable: true }
     t.integer :author_id, foreign_key: { deferrable: :initially_deferred }
 

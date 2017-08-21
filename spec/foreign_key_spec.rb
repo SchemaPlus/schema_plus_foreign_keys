@@ -7,10 +7,10 @@ describe "Foreign Key" do
   context "created with table" do
     before(:each) do
       define_schema do
-        create_table :users, id: :integer, :force => true do |t|
+        create_table :users, :force => true do |t|
           t.string :login
         end
-        create_table :comments, id: :integer, :force => true do |t|
+        create_table :comments, :force => true do |t|
           t.integer :user_id
           t.foreign_key :user_id, :users
         end
@@ -34,18 +34,18 @@ describe "Foreign Key" do
 
     before(:each) do
       define_schema do
-        create_table :users, id: :integer, :force => true do |t|
+        create_table :users, :force => true do |t|
           t.string :login
           t.datetime :deleted_at
         end
 
-        create_table :posts, id: :integer, :force => true do |t|
+        create_table :posts, :force => true do |t|
           t.text :body
           t.integer :user_id
           t.integer :author_id
         end
 
-        create_table :comments, id: :integer, :force => true do |t|
+        create_table :comments, :force => true do |t|
           t.text :body
           t.integer :post_id
           t.foreign_key :post_id, :posts
@@ -149,7 +149,7 @@ describe "Foreign Key" do
       context "when table name is a reserved word" do
         before(:each) do
           migration.suppress_messages do
-            migration.create_table :references, id: :integer, :force => true do |t|
+            migration.create_table :references, :force => true do |t|
               t.integer :post_id, :foreign_key => false
             end
           end

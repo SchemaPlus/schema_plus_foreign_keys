@@ -5,23 +5,22 @@ describe ActiveRecord::Migration do
 
   before(:each) do
     define_schema do
-
-      create_table :users, :force => true do |t|
+      create_table :users, :id => :integer, :force => true do |t|
         t.string :login, :index => { :unique => true }
       end
 
-      create_table :members, :force => true do |t|
+      create_table :members, :id => :integer, :force => true do |t|
         t.string :login
       end
 
-      create_table :comments, :force => true do |t|
+      create_table :comments, :id => :integer, :force => true do |t|
         t.string :content
         t.integer :user
-        t.references :user
+        t.references :user, :type => :integer
         t.foreign_key :user_id, :users, :primary_key => :id
       end
 
-      create_table :posts, :force => true do |t|
+      create_table :posts, :id => :integer, :force => true do |t|
         t.string :content
       end
     end
@@ -54,7 +53,7 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key with default column" do
       recreate_table(@model) do |t|
-        t.references :user
+        t.references :user, type: :integer
         t.foreign_key :users
       end
       expect(@model).to reference(:users, :id).on(:user_id)
@@ -62,7 +61,7 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key with different reference" do
       recreate_table(@model) do |t|
-        t.references :author, :foreign_key => { :references => :users }
+        t.references :author, :type => :integer, :foreign_key => { :references => :users }
       end
       expect(@model).to reference(:users, :id).on(:author_id)
     end
@@ -71,7 +70,7 @@ describe ActiveRecord::Migration do
       hash = { :references => :users }
       hash_original = hash.dup
       recreate_table(@model) do |t|
-        t.references :author, :foreign_key => hash
+        t.references :author, :type => :integer, :foreign_key => hash
       end
       expect(hash).to eq(hash_original)
     end
@@ -87,21 +86,21 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key with different reference using shortcut" do
       recreate_table(@model) do |t|
-        t.references :author, :references => :users
+        t.references :author, :type => :integer, :references => :users
       end
       expect(@model).to reference(:users, :id).on(:author_id)
     end
 
     it "should create foreign key with default name" do
       recreate_table @model do |t|
-        t.references :user, :foreign_key => true
+        t.references :user, :type => :integer, :foreign_key => true
       end
       expect(@model).to reference(:users, :id).with_name("fk_#{@model.table_name}_user_id")
     end
 
     it "should create foreign key with specified name" do
       recreate_table @model do |t|
-        t.references :user, :foreign_key => { :name => "wugga" }
+        t.references :user, :type => :integer, :foreign_key => { :name => "wugga" }
       end
       expect(@model).to reference(:users, :id).with_name("wugga")
     end
@@ -119,8 +118,8 @@ describe ActiveRecord::Migration do
 
     it "should allow multiple foreign keys to be made" do
       recreate_table(@model) do |t|
-        t.references :user, :references => :users
-        t.references :updater, :references => :users
+        t.references :user, :type => :integer, :references => :users
+        t.references :updater, :type => :integer, :references => :users
       end
       expect(@model).to reference(:users, :id).on(:user_id)
       expect(@model).to reference(:users, :id).on(:updater_id)
@@ -195,14 +194,14 @@ describe ActiveRecord::Migration do
 
       it "should create and detect on_update #{action.inspect}", if_action_supported do
         recreate_table @model do |t|
-          t.references :user,   :foreign_key => { :on_update => action }
+          t.references :user, :type => :integer, :foreign_key => { :on_update => action }
         end
         expect(@model).to reference.on(:user_id).on_update(action)
       end
 
       it "should create and detect on_update #{action.inspect} using shortcut", if_action_supported do
         recreate_table @model do |t|
-          t.references :user,   :on_update => action
+          t.references :user, :type => :integer, :on_update => action
         end
         expect(@model).to reference.on(:user_id).on_update(action)
       end
@@ -217,14 +216,14 @@ describe ActiveRecord::Migration do
 
       it "should create and detect on_delete #{action.inspect}", if_action_supported do
         recreate_table @model do |t|
-          t.references :user,   :foreign_key => { :on_delete => action }
+          t.references :user, :type => :integer, :foreign_key => { :on_delete => action }
         end
         expect(@model).to reference.on(:user_id).on_delete(action)
       end
 
       it "should create and detect on_delete #{action.inspect} using shortcut", if_action_supported do
         recreate_table @model do |t|
-          t.references :user,   :on_delete => action
+          t.references :user, :type => :integer, :on_delete => action
         end
         expect(@model).to reference.on(:user_id).on_delete(action)
       end
@@ -242,7 +241,7 @@ describe ActiveRecord::Migration do
     [false, true, :initially_deferred].each do |status|
       it "should create and detect deferrable #{status.inspect}", :mysql => :skip do
         recreate_table @model do |t|
-          t.references :user,   :on_delete => :cascade, :deferrable => status
+          t.references :user, :type => :integer, :on_delete => :cascade, :deferrable => status
         end
         expect(@model).to reference.on(:user_id).deferrable(status)
       end
@@ -251,7 +250,7 @@ describe ActiveRecord::Migration do
     it "should use default on_delete action" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model do |t|
-          t.references :user, foreign_key: true
+          t.references :user, :type => :integer, :foreign_key => true
         end
         expect(@model).to reference.on(:user_id).on_delete(:cascade)
       end
@@ -260,7 +259,7 @@ describe ActiveRecord::Migration do
     it "should override on_update action per table" do
       with_fk_config(:on_update => :cascade) do
         recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
-          t.references :user, foreign_key: true
+          t.references :user, :type => :integer, :foreign_key => true
         end
         expect(@model).to reference.on(:user_id).on_update(:restrict)
       end
@@ -269,7 +268,7 @@ describe ActiveRecord::Migration do
     it "should override on_delete action per table" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
-          t.references :user, foreign_key: true
+          t.references :user, :type => :integer, :foreign_key => true
         end
         expect(@model).to reference.on(:user_id).on_delete(:restrict)
       end
@@ -278,7 +277,7 @@ describe ActiveRecord::Migration do
     it "should override on_update action per column" do
       with_fk_config(:on_update => :cascade) do
         recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
-          t.references :user, :foreign_key => { :on_update => :nullify }
+          t.references :user, :type => :integer, :foreign_key => { :on_update => :nullify }
         end
         expect(@model).to reference.on(:user_id).on_update(:nullify)
       end
@@ -287,7 +286,7 @@ describe ActiveRecord::Migration do
     it "should override on_delete action per column" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
-          t.references :user, :foreign_key => { :on_delete => :nullify }
+          t.references :user, :type => :integer, :foreign_key => { :on_delete => :nullify }
         end
         expect(@model).to reference.on(:user_id).on_delete(:nullify)
       end
@@ -296,7 +295,7 @@ describe ActiveRecord::Migration do
     it "should raise an error for an invalid on_update action" do
       expect {
         recreate_table @model do |t|
-          t.references :user, :foreign_key => { :on_update => :invalid }
+          t.references :user, :type => :integer, :foreign_key => { :on_update => :invalid }
         end
       }.to raise_error(ArgumentError)
     end
@@ -304,7 +303,7 @@ describe ActiveRecord::Migration do
     it "should raise an error for an invalid on_delete action" do
       expect {
         recreate_table @model do |t|
-          t.references :user, :foreign_key => { :on_delete => :invalid }
+          t.references :user, :type => :integer, :foreign_key => { :on_delete => :invalid }
         end
       }.to raise_error(ArgumentError)
     end
@@ -320,7 +319,7 @@ describe ActiveRecord::Migration do
 
       it "should create a foreign key constraint"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.references :user, foreign_key: true
+          t.references :user, :type => :integer, :foreign_key => true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end
@@ -332,7 +331,7 @@ describe ActiveRecord::Migration do
           migration = Class.new ::ActiveRecord::Migration.latest_version do
             define_method(:change) {
               change_table("comments", :bulk => bulk) do |t|
-                t.references :user, foreign_key: true
+                t.references :user, :type => :integer, :foreign_key => true
               end
             }
           end
@@ -456,7 +455,7 @@ describe ActiveRecord::Migration do
 
         before(:each) do
           recreate_table @model do |t|
-            t.references :user, foreign_key: true
+            t.references :user, type: :integer, foreign_key: true
           end
         end
 
@@ -503,7 +502,7 @@ describe ActiveRecord::Migration do
     before(:each) do
       @model = Comment
       recreate_table @model do |t|
-        t.references :post, foreign_key: true
+        t.references :post, type: :integer, foreign_key: true
       end
     end
 
@@ -529,7 +528,7 @@ describe ActiveRecord::Migration do
     before(:each) do
       @model = Comment
       recreate_table @model do |t|
-        t.references :user, foreign_key: true
+        t.references :user, type: :integer, foreign_key: true
         t.integer :xyz, :index => true
       end
       ActiveRecord::Migration.suppress_messages do

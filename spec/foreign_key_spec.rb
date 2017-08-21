@@ -30,6 +30,31 @@ describe "Foreign Key" do
 
   end
 
+  context "explicit foreign key type" do
+    [:integer, :bigint].each do |primary_key_type|
+      before(:each) do
+        define_schema do
+          create_table :users, :id => primary_key_type, :force => true do |t|
+            t.string :login
+          end
+
+          create_table :comments, :id => primary_key_type, :force => true do |t|
+            t.send primary_key_type, :user_id
+            t.foreign_key :user_id, :users
+          end
+        end
+      end
+
+      it "should report foreign key constraints" do
+        expect(Comment.foreign_keys.collect(&:column).flatten).to eq([ "user_id" ])
+      end
+
+      it "should report reverse foreign key constraints" do
+        expect(User.reverse_foreign_keys.collect(&:column).flatten).to eq([ "user_id" ])
+      end
+    end
+  end
+
   context "modification" do
 
     before(:each) do

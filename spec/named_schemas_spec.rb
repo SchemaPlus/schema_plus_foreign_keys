@@ -57,7 +57,7 @@ describe "with multiple schemas" do
 
     it "should not find foreign keys in other schema" do
       connection.create_table :comments, :force => true do |t|
-        t.integer :user_id, :foreign_key => false
+        t.references :user, :foreign_key => false
       end
       Comment.reset_column_information
       expect(Comment.foreign_keys.length).to eq(0)
@@ -67,7 +67,7 @@ describe "with multiple schemas" do
 
     it "should find foreign keys in this schema" do
       connection.create_table :comments, :force => true do |t|
-        t.integer :user_id, :foreign_key => true
+        t.references :user, :foreign_key => true
       end
       Comment.reset_column_information
       expect(Comment.foreign_keys.map(&:column).flatten).to eq(["user_id"])
@@ -85,8 +85,8 @@ describe "with multiple schemas" do
         create_table "schema_plus_test2.groups", :force => true do |t|
         end
         create_table "schema_plus_test2.members", :force => true do |t|
-          t.integer :item_id, :foreign_key => true unless SchemaDev::Rspec::Helpers.mysql?
-          t.integer :group_id, :foreign_key => { references: "schema_plus_test2.groups" }
+          t.references :item, :foreign_key => true unless SchemaDev::Rspec::Helpers.mysql?
+          t.references :group, :foreign_key => { references: "schema_plus_test2.groups" }
         end
       end
       class Group < ::ActiveRecord::Base

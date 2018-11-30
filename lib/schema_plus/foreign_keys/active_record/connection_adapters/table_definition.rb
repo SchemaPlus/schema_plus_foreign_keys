@@ -34,17 +34,17 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
   # SchemaPlus::ForeignKeys also supports creation of foreign key constraints analogously, using Migration::ClassMethods#add_foreign_key or TableDefinition#foreign_key or as part of the column definition, for example:
   #
   #    create_table :posts do |t|  # not DRY
-  #       t.integer :author_id
+  #       t.references :author
   #    end
   #    add_foreign_key :posts, :author_id, :references => :authors
   #
   #    create_table :posts do |t|  # DRYer
-  #       t.integer :author_id
+  #       t.references :author
   #       t.foreign_key :author_id, :references => :authors
   #    end
   #
   #    create_table :posts do |t|  # Dryest
-  #       t.integer :author_id, :foreign_key => true
+  #       t.references :author, :foreign_key => true
   #    end
   #
   # <b>NOTE:</b> In the standard configuration, SchemaPlus::ForeignKeys automatically
@@ -60,7 +60,7 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
   # basis by passing Config options to Migration::ClassMethods#create_table, such as
   #
   #      create_table :students, :foreign_keys => {:auto_create => false} do
-  #         t.integer :student_id
+  #         t.references :student
   #      end
   #
   module TableDefinition

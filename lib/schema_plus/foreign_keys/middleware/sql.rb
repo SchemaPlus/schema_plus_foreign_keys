@@ -2,7 +2,7 @@ module SchemaPlus::ForeignKeys
   module Middleware
     module Sql
       module Table
-        if Gem::Requirement.new('< 5.0.0.alpha.1').satisfied_by?(::ActiveRecord.version)
+        if Gem::Requirement.new('< 5.0').satisfied_by?(::ActiveRecord.version)
           def after(env)
             foreign_keys = if env.table_definition.foreign_keys.is_a? Array
                              env.table_definition.foreign_keys

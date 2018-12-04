@@ -155,6 +155,7 @@ SchemaPlus::ForeignKeys is tested on:
 
 ## History
 
+* 0.1.8 - Compatibility with ActiveRecord 5.1 and ActiveRecord 5.2.
 * 0.1.7 - Compatibility with ActiveRecord 5.0.
 * 0.1.6 - Missing require
 * 0.1.5 - Explicit gem dependencies

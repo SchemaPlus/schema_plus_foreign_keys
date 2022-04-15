@@ -7,12 +7,12 @@ describe "Foreign Key" do
   context "created with table" do
     before(:each) do
       define_schema do
-        create_table :users, :force => true do |t|
+        create_table :users, force: true do |t|
           t.string :login
         end
-        create_table :comments, :force => true do |t|
+        create_table :comments, force: true do |t|
           t.references :user
-          t.foreign_key :user_id, :users
+          t.foreign_key :users, column: :user_id
         end
       end
       class User < ::ActiveRecord::Base ; end
@@ -34,21 +34,21 @@ describe "Foreign Key" do
 
     before(:each) do
       define_schema do
-        create_table :users, :force => true do |t|
+        create_table :users, force: true do |t|
           t.string :login
           t.datetime :deleted_at
         end
 
-        create_table :posts, :force => true do |t|
+        create_table :posts, force: true do |t|
           t.text :body
           t.references :user
           t.references :author
         end
 
-        create_table :comments, :force => true do |t|
+        create_table :comments, force: true do |t|
           t.text :body
           t.references :post
-          t.foreign_key :post_id, :posts
+          t.foreign_key :posts, column: :post_id
         end
       end
       class User < ::ActiveRecord::Base ; end
@@ -58,12 +58,12 @@ describe "Foreign Key" do
     end
 
 
-    context "works", :sqlite3 => :skip do
+    context "works", sqlite3: :skip do
 
       context "when is added", "posts(author_id)" do
 
         before(:each) do
-          add_foreign_key(:posts, :users, :column => :author_id, :on_update => :cascade, :on_delete => :restrict)
+          add_foreign_key(:posts, :users, column: :author_id, on_update: :cascade, on_delete: :restrict)
         end
 
         it "references users(id)" do
@@ -131,7 +131,7 @@ describe "Foreign Key" do
         end
 
         it "does not error with :if_exists" do
-          expect{remove_foreign_key(:comments, "posts", column: "nonesuch", :if_exists => true)}.to_not raise_error
+          expect{remove_foreign_key(:comments, "posts", column: "nonesuch", if_exists: true)}.to_not raise_error
         end
       end
 
@@ -149,8 +149,8 @@ describe "Foreign Key" do
       context "when table name is a reserved word" do
         before(:each) do
           migration.suppress_messages do
-            migration.create_table :references, :force => true do |t|
-              t.references :post, :foreign_key => false
+            migration.create_table :references, force: true do |t|
+              t.references :post, foreign_key: false
             end
           end
         end
@@ -168,11 +168,11 @@ describe "Foreign Key" do
 
     end
 
-    context "raises an exception", :sqlite3 => :only do
+    context "raises an exception", sqlite3: :only do
 
       it "when attempting to add" do
         expect {
-          add_foreign_key(:posts, :users, :column => :author_id, :on_update => :cascade, :on_delete => :restrict)
+          add_foreign_key(:posts, :users, column: :author_id, on_update: :cascade, on_delete: :restrict)
         }.to raise_error(NotImplementedError)
       end
 
@@ -186,18 +186,18 @@ describe "Foreign Key" do
   end
 
   protected
-  def add_foreign_key(*args)
+  def add_foreign_key(*args, **kwargs)
     migration.suppress_messages do
-      migration.add_foreign_key(*args)
+      migration.add_foreign_key(*args, **kwargs)
     end
     User.reset_column_information
     Post.reset_column_information
     Comment.reset_column_information
   end
 
-  def remove_foreign_key(*args)
+  def remove_foreign_key(*args, **kwargs)
     migration.suppress_messages do
-      migration.remove_foreign_key(*args)
+      migration.remove_foreign_key(*args, **kwargs)
     end
     User.reset_column_information
     Post.reset_column_information

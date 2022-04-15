@@ -25,7 +25,7 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
   # definition, via:
   #
   #   create_table :widgets do |t|
-  #      t.string :name, :index => true
+  #      t.string :name, index: true
   #   end
   #
   # For details about the :index option (including unique and multi-column indexes), see the
@@ -36,15 +36,15 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
   #    create_table :posts do |t|  # not DRY
   #       t.references :author
   #    end
-  #    add_foreign_key :posts, :author_id, :references => :authors
+  #    add_foreign_key :posts, :author_id, references: :authors
   #
   #    create_table :posts do |t|  # DRYer
   #       t.references :author
-  #       t.foreign_key :author_id, :references => :authors
+  #       t.foreign_key :author_id, references: :authors
   #    end
   #
   #    create_table :posts do |t|  # Dryest
-  #       t.references :author, :foreign_key => true
+  #       t.references :author, foreign_key: true
   #    end
   #
   # <b>NOTE:</b> In the standard configuration, SchemaPlus::ForeignKeys automatically
@@ -59,54 +59,13 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
   # Finally, the configuration for foreign keys can be overriden on a per-table
   # basis by passing Config options to Migration::ClassMethods#create_table, such as
   #
-  #      create_table :students, :foreign_keys => {:auto_create => false} do
+  #      create_table :students, foreign_keys: {auto_create: false} do
   #         t.references :student
   #      end
   #
   module TableDefinition
 
     attr_accessor :schema_plus_foreign_keys_config #:nodoc:
-
-    if Gem::Requirement.new('= 4.2.0').satisfied_by?(::ActiveRecord.version)
-      def foreign_keys
-        @foreign_keys ||= []
-      end
-
-      def foreign_keys_for_table(*)
-        foreign_keys
-      end
-    elsif Gem::Requirement.new('< 4.2.6').satisfied_by?(::ActiveRecord.version)
-      def foreign_keys_for_table(table)
-        foreign_keys[table] ||= []
-      end
-    else
-      def foreign_keys_for_table(*)
-        foreign_keys
-      end
-    end
-
-    def foreign_key(*args) # (column_names, to_table, primary_key=nil, options=nil)
-      options = args.extract_options!
-      case args.length
-      when 1
-        to_table = args[0]
-        column_names = "#{to_table.to_s.singularize}_id"
-      when 2
-        column_names, to_table = args
-      when 3
-        ActiveSupport::Deprecation.warn "positional arg for foreign primary key is deprecated, use :primary_key option instead"
-        column_names, to_table, primary_key = args
-        options.merge!(:primary_key => primary_key)
-      else
-        raise ArgumentError, "wrong number of arguments (#{args.length}) for foreign_key(column_names, table_name, options)"
-      end
-
-      options.merge!(:column => column_names)
-      options.reverse_merge!(:name => ForeignKeyDefinition.default_name(self.name, column_names))
-      fk = ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(to_table), options)
-      foreign_keys_for_table(fk.to_table) << fk
-      self
-    end
 
   end
 end

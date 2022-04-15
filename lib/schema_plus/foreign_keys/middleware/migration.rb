@@ -22,7 +22,13 @@ module SchemaPlus::ForeignKeys
           env.connection.foreign_keys(newname).each do |fk|
             begin
               env.connection.remove_foreign_key(newname, name: fk.name)
-              env.connection.add_foreign_key(newname, fk.to_table, :column => fk.column, :primary_key => fk.primary_key, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
+              env.connection.add_foreign_key(newname, fk.to_table,
+                                             column: fk.column,
+                                             primary_key: fk.primary_key,
+                                             name: fk.name.sub(/#{oldname}/, newname),
+                                             on_update: fk.on_update,
+                                             on_delete: fk.on_delete,
+                                             deferrable: fk.deferrable)
             rescue NotImplementedError
               # sqlite3 can't remote or add foreign keys, so just skip it
             end
@@ -123,9 +129,9 @@ module SchemaPlus::ForeignKeys
           references = fk_opts.delete(:references)
           case env.caller
           when ::ActiveRecord::ConnectionAdapters::TableDefinition
-            env.caller.foreign_key(env.column_name, references, fk_opts)
+            env.caller.foreign_key(references, **fk_opts)
           else
-            env.caller.add_foreign_key(env.table_name, references, fk_opts.merge(:column => env.column_name))
+            env.caller.add_foreign_key(env.table_name, references, **fk_opts)
           end
         end
 
@@ -134,6 +140,7 @@ module SchemaPlus::ForeignKeys
           return nil if opts.nil?
           return :none if opts == false
           opts = {} if opts == true
+          opts[:column] ||= env.column_name
           opts[:references] ||= default_table_name(env)
           opts[:on_update] ||= config.on_update
           opts[:on_delete] ||= config.on_delete
@@ -141,7 +148,7 @@ module SchemaPlus::ForeignKeys
         end
 
         def remove_foreign_key_if_exists(env)
-          env.caller.remove_foreign_key(env.table_name.to_s, column: env.column_name.to_s, :if_exists => true)
+          env.caller.remove_foreign_key(env.table_name.to_s, column: env.column_name.to_s, if_exists: true)
         end
 
         def default_table_name(env)
@@ -159,4 +166,3 @@ module SchemaPlus::ForeignKeys
     end
   end
 end
-

@@ -7,21 +7,20 @@ module SchemaPlus::ForeignKeys
 
         #:enddoc:
 
-        def remove_column(table_name, column_name, type=nil, options={})
+        def remove_column(table_name, column_name, type=nil, **options)
           foreign_keys(table_name).select { |foreign_key| Array.wrap(foreign_key.column).include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, name: foreign_key.name)
           end
-          super table_name, column_name, type, options
+          super table_name, column_name, type, **options
         end
 
-        def remove_foreign_key(*args)
-          from_table, to_table, options = normalize_remove_foreign_key_args(*args)
+        def remove_foreign_key(from_table, to_table = nil, **options)
           if options[:if_exists]
             foreign_key_name = get_foreign_key_name(from_table, to_table, options)
             return if !foreign_key_name or not foreign_keys(from_table).detect{|fk| fk.name == foreign_key_name}
           end
           options.delete(:if_exists)
-          super from_table, to_table, options
+          super from_table, to_table, **options
         end
 
         def remove_foreign_key_sql(*args)
@@ -52,11 +51,11 @@ module SchemaPlus::ForeignKeys
                 on_update = ForeignKeyDefinition::ACTION_LOOKUP[on_update] || :restrict
                 on_delete = ForeignKeyDefinition::ACTION_LOOKUP[on_delete] || :restrict
 
-                options = { :name => name,
-                            :on_delete => on_delete,
-                            :on_update => on_update,
-                            :column => columns.gsub('`', '').split(', '),
-                            :primary_key => primary_keys.gsub('`', '').split(', ')
+                options = { name: name,
+                            on_delete: on_delete,
+                            on_update: on_update,
+                            column: columns.gsub('`', '').split(', '),
+                            primary_key: primary_keys.gsub('`', '').split(', ')
                 }
 
                 foreign_keys << ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(
@@ -92,9 +91,9 @@ module SchemaPlus::ForeignKeys
             to_table = table_namespace_prefix(to_table) + to_table
 
             options = {
-              :name => constraint_name,
-              :column => columns.map { |row| row['column_name'] },
-              :primary_key => columns.map { |row| row['referenced_column_name'] }
+              name: constraint_name,
+              column: columns.map { |row| row['column_name'] },
+              primary_key: columns.map { |row| row['referenced_column_name'] }
             }
 
             ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, to_table, options)

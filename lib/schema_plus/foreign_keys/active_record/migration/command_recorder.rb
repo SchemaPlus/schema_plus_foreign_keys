@@ -6,7 +6,7 @@ module SchemaPlus::ForeignKeys
         attr_accessor :schema_plus_foreign_keys_config #:nodoc:
 
         # seems like this is fixing a rails bug:
-        #   change_table foo, :bulk => true { |t| t.references :bar }
+        #   change_table foo, bulk: true { |t| t.references :bar }
         # results in an 'unknown method :add_reference_sql' (with mysql2)
         #
         # should track it down separately and submit a patch/fix to rails
@@ -16,7 +16,7 @@ module SchemaPlus::ForeignKeys
           options[:references] = nil if polymorphic
           # ugh.  copying and pasting code from ::ActiveRecord::ConnectionAdapters::SchemaStatements#add_reference
           index_options = options.delete(:index)
-          add_column(table_name, "#{ref_name}_id", :integer, options)
+          add_column(table_name, "#{ref_name}_id", :integer, **options)
           add_column(table_name, "#{ref_name}_type", :string, polymorphic.is_a?(Hash) ? polymorphic : options) if polymorphic
           add_index(table_name, polymorphic ? %w[id type].map{ |t| "#{ref_name}_#{t}" } : "#{ref_name}_id", index_options.is_a?(Hash) ? index_options : {}) if index_options
 

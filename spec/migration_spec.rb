@@ -2,29 +2,25 @@
 require 'spec_helper'
 
 describe ActiveRecord::Migration do
-  let(:column_type) {
-    Gem::Requirement.new('< 5.1').satisfied_by?(::ActiveRecord.version) ? :integer : :bigint
-  }
-
   before(:each) do
     define_schema do
 
-      create_table :users, :force => true do |t|
-        t.string :login, :index => { :unique => true }
+      create_table :users, force: true do |t|
+        t.string :login, index: { unique: true }
       end
 
-      create_table :members, :force => true do |t|
+      create_table :members, force: true do |t|
         t.string :login
       end
 
-      create_table :comments, :force => true do |t|
+      create_table :comments, force: true do |t|
         t.string :content
         t.integer :user
         t.references :user
-        t.foreign_key :user_id, :users, :primary_key => :id
+        t.foreign_key :users, column: :user_id, primary_key: :id
       end
 
-      create_table :posts, :force => true do |t|
+      create_table :posts, force: true do |t|
         t.string :content
       end
     end
@@ -39,18 +35,18 @@ describe ActiveRecord::Migration do
       @model = Post
     end
 
-    it "should enable foreign keys", :sqlite3 => :only do
+    it "should enable foreign keys", sqlite3: :only do
       sql = []
       allow(@model.connection).to receive(:execute) { |str| sql << str }
       recreate_table(@model) do |t|
-        t.send column_type, :user, :foreign_key => true
+        t.send :bigint, :user, foreign_key: true
       end
       expect(sql.join('; ')).to match(/PRAGMA FOREIGN_KEYS = ON.*CREATE TABLE "posts"/)
     end
 
     it "should create foreign key with default reference" do
       recreate_table(@model) do |t|
-        t.send column_type, :user, :foreign_key => true
+        t.send :bigint, :user, foreign_key: true
       end
       expect(@model).to reference(:users, :id).on(:user)
     end
@@ -65,16 +61,16 @@ describe ActiveRecord::Migration do
 
     it "should create foreign key with different reference" do
       recreate_table(@model) do |t|
-        t.references :author, :foreign_key => { :references => :users }
+        t.references :author, foreign_key: { references: :users }
       end
       expect(@model).to reference(:users, :id).on(:author_id)
     end
 
     it "should create foreign key without modifying input hash" do
-      hash = { :references => :users }
+      hash = { references: :users }
       hash_original = hash.dup
       recreate_table(@model) do |t|
-        t.references :author, :foreign_key => hash
+        t.references :author, foreign_key: hash
       end
       expect(hash).to eq(hash_original)
     end
@@ -99,7 +95,7 @@ describe ActiveRecord::Migration do
       recreate_table @model do |t|
         t.references :user, :foreign_key => true
       end
-      expect(@model).to reference(:users, :id).with_name("fk_#{@model.table_name}_user_id")
+      expect(@model).to reference(:users, :id).with_name(/fk_rails_\w+/)
     end
 
     it "should create foreign key with specified name" do
@@ -352,7 +348,7 @@ describe ActiveRecord::Migration do
 
       it "should create a foreign key constraint using :references"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
-          t.send column_type, :user_id, foreign_key: true
+          t.send :bigint, :user_id, foreign_key: true
         end
         expect(@model).to reference(:users, :id).on(:user_id)
       end
@@ -373,19 +369,19 @@ describe ActiveRecord::Migration do
     end
 
     it "should create foreign key" do
-      add_column(:post_id, column_type, foreign_key: true) do
+      add_column(:post_id, :bigint, foreign_key: true) do
         expect(@model).to reference(:posts, :id).on(:post_id)
       end
     end
 
     it "should create foreign key to explicitly given table" do
-      add_column(:author_id, column_type, :foreign_key => { :references => :users }) do
+      add_column(:author_id, :bigint, :foreign_key => { :references => :users }) do
         expect(@model).to reference(:users, :id).on(:author_id)
       end
     end
 
     it "should create foreign key to explicitly given table using shortcut" do
-      add_column(:author_id, column_type, :references => :users) do
+      add_column(:author_id, :bigint, :references => :users) do
         expect(@model).to reference(:users, :id).on(:author_id)
       end
     end
@@ -397,14 +393,14 @@ describe ActiveRecord::Migration do
     end
 
     it "should create foreign key to the same table on parent_id" do
-      add_column(:parent_id, column_type, foreign_key: true) do
+      add_column(:parent_id, :bigint, foreign_key: true) do
         expect(@model).to reference(@model.table_name, :id).on(:parent_id)
       end
     end
 
     it "should use default on_update action" do
       SchemaPlus::ForeignKeys.config.on_update = :cascade
-      add_column(:post_id, column_type, foreign_key: true) do
+      add_column(:post_id, :bigint, foreign_key: true) do
         expect(@model).to reference.on(:post_id).on_update(:cascade)
       end
       SchemaPlus::ForeignKeys.config.on_update = nil
@@ -412,7 +408,7 @@ describe ActiveRecord::Migration do
 
     it "should use default on_delete action" do
       SchemaPlus::ForeignKeys.config.on_delete = :cascade
-      add_column(:post_id, column_type, foreign_key: true) do
+      add_column(:post_id, :bigint, foreign_key: true) do
         expect(@model).to reference.on(:post_id).on_delete(:cascade)
       end
       SchemaPlus::ForeignKeys.config.on_delete = nil
@@ -421,22 +417,22 @@ describe ActiveRecord::Migration do
     it "should allow to overwrite default actions" do
       SchemaPlus::ForeignKeys.config.on_delete = :cascade
       SchemaPlus::ForeignKeys.config.on_update = :restrict
-      add_column(:post_id, column_type, :foreign_key => { :on_update => :nullify, :on_delete => :nullify}) do
+      add_column(:post_id, :bigint, :foreign_key => { :on_update => :nullify, :on_delete => :nullify}) do
         expect(@model).to reference.on(:post_id).on_delete(:nullify).on_update(:nullify)
       end
       SchemaPlus::ForeignKeys.config.on_delete = nil
     end
 
     it "should create foreign key with default name" do
-      add_column(:post_id, column_type, foreign_key: true) do
-        expect(@model).to reference(:posts, :id).with_name("fk_#{@model.table_name}_post_id")
+      add_column(:post_id, :bigint, foreign_key: true) do
+        expect(@model).to reference(:posts, :id).with_name(/fk_rails_\w+/)
       end
     end
 
     protected
-    def add_column(column_name, *args)
+    def add_column(column_name, type, **options)
       table = @model.table_name
-      ActiveRecord::Migration.add_column(table, column_name, *args)
+      ActiveRecord::Migration.add_column(table, column_name, type, **options)
       @model.reset_column_information
       yield if block_given?
       ActiveRecord::Migration.remove_column(table, column_name)
@@ -471,22 +467,22 @@ describe ActiveRecord::Migration do
         end
 
         it "should drop foreign key if it is no longer valid" do
-          change_column :user_id, column_type, :foreign_key => { :references => :members }
+          change_column :user_id, :bigint, :foreign_key => { :references => :members }
           expect(@model).not_to reference(:users)
         end
 
         it "should drop foreign key if requested to do so" do
-          change_column :user_id, column_type, :foreign_key => { :references => nil }
+          change_column :user_id, :bigint, :foreign_key => { :references => nil }
           expect(@model).not_to reference(:users)
         end
 
         it "should reference pointed table afterwards if new one is created" do
-          change_column :user_id, column_type, :foreign_key => { :references => :members }
+          change_column :user_id, :bigint, :foreign_key => { :references => :members }
           expect(@model).to reference(:members)
         end
 
         it "should maintain foreign key if it's unaffected by change" do
-          change_column :user_id, column_type, :default => 0
+          change_column :user_id, :bigint, :default => 0
           expect(@model).to reference(:users)
         end
 
@@ -495,10 +491,10 @@ describe ActiveRecord::Migration do
     end
 
     protected
-    def change_column(column_name, *args)
+    def change_column(column_name, type, **options)
       table = @model.table_name
       ActiveRecord::Migration.suppress_messages do
-        ActiveRecord::Migration.change_column(table, column_name, *args)
+        ActiveRecord::Migration.change_column(table, column_name, type, **options)
         @model.reset_column_information
       end
     end
@@ -529,27 +525,6 @@ describe ActiveRecord::Migration do
     end
   end
 
-
-  context "when table is renamed" do
-
-    before(:each) do
-      @model = Comment
-      recreate_table @model do |t|
-        t.references :user, foreign_key: true
-        t.integer :xyz, :index => true
-      end
-      ActiveRecord::Migration.suppress_messages do
-        ActiveRecord::Migration.rename_table @model.table_name, :newname
-      end
-    end
-
-    it "should rename foreign key constraints", :sqlite3 => :skip do
-      expect(ActiveRecord::Base.connection.foreign_keys(:newname).first.name).to match(/newname/)
-    end
-
-  end
-
-
   context "when table with more than one fk constraint is renamed", :sqlite3 => :skip do
 
     before(:each) do
@@ -571,17 +546,16 @@ describe ActiveRecord::Migration do
 
   def recreate_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.create_table model.table_name, opts.merge(:force => true), &block
+      ActiveRecord::Migration.create_table model.table_name, **opts.merge(:force => true), &block
     end
     model.reset_column_information
   end
 
   def change_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.change_table model.table_name, opts, &block
+      ActiveRecord::Migration.change_table model.table_name, **opts, &block
     end
     model.reset_column_information
   end
 
 end
-

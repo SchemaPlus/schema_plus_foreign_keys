@@ -22,7 +22,7 @@ module SchemaPlus::Matchers
       @result.keep_if {|fk| fk.on_update == @on_update } if @on_update
       @result.keep_if {|fk| fk.on_delete == @on_delete } if @on_delete
       @result.keep_if {|fk| fk.deferrable == @deferrable } if @deferrable
-      @result.keep_if {|fk| fk.name == @name } if @name
+      @result.keep_if {|fk| @name.is_a?(String) ? fk.name == @name : fk.name.match?(@name) } if @name
       !@result.empty?
     end
 
@@ -76,4 +76,3 @@ module SchemaPlus::Matchers
   end
 
 end
-

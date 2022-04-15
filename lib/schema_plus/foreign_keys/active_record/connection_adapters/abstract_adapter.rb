@@ -22,27 +22,16 @@ module SchemaPlus::ForeignKeys
         # constraints; they must be included in the table specification when
         # it's created.  If you're using Sqlite3, this method will raise an
         # error.)
-        def add_foreign_key(*args) # (table_name, column, to_table, primary_key, options = {})
-          options = args.extract_options!
-          case args.length
-          when 2
-            from_table, to_table = args
-          when 4
-            ActiveSupport::Deprecation.warn "4-argument form of add_foreign_key is deprecated.  use add_foreign_key(from_table, to_table, options)"
-            (from_table, column, to_table, primary_key) = args
-            options.merge!(column: column, primary_key: primary_key)
-          end
-
+        def add_foreign_key(from_table, to_table, **options) # (table_name, column, to_table, primary_key, options = {})
           options = options.dup
           options[:column] ||= foreign_key_column_for(to_table)
-          options[:name]   ||= ForeignKeyDefinition.default_name(from_table, options[:column])
 
           foreign_key_sql = add_foreign_key_sql(from_table, to_table, options)
           execute "ALTER TABLE #{quote_table_name(from_table)} #{foreign_key_sql}"
         end
 
         # called directly by AT's bulk_change_table, for migration
-        # change_table :name, :bulk => true { ... }
+        # change_table :name, bulk: true { ... }
         def add_foreign_key_sql(from_table, to_table, options = {}) #:nodoc:
           foreign_key = ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, AbstractAdapter.proper_table_name(to_table), options)
           "ADD #{foreign_key.to_sql}"
@@ -53,7 +42,7 @@ module SchemaPlus::ForeignKeys
         end
 
         def self.proper_table_name(name)
-          proper_name = ::ActiveRecord::Migration.new.proper_table_name(name)
+          ::ActiveRecord::Migration.new.proper_table_name(name)
         end
 
         # Remove a foreign key constraint
@@ -66,42 +55,11 @@ module SchemaPlus::ForeignKeys
         # (NOTE: Sqlite3 does not support altering a table to remove
         # foreign-key constraints.  If you're using Sqlite3, this method will
         # raise an error.)
-        def remove_foreign_key(*args)
-          from_table, to_table, options = normalize_remove_foreign_key_args(*args)
+        def remove_foreign_key(from_table, to_table = nil, **options)
           options[:column] ||= foreign_key_column_for(to_table)
           if sql = remove_foreign_key_sql(from_table, to_table, options)
             execute "ALTER TABLE #{quote_table_name(from_table)} #{sql}"
           end
-        end
-
-        def normalize_remove_foreign_key_args(*args)
-          options = args.extract_options!
-          if options.has_key? :column_names
-            ActiveSupport::Deprecation.warn ":column_names option is deprecated, use :column"
-            options[:column] = options.delete(:column_names)
-          end
-          if options.has_key? :references_column_names
-            ActiveSupport::Deprecation.warn ":references_column_names option is deprecated, use :primary_key"
-            options[:primary_key] = options.delete(:references_column_names)
-          end
-          if options.has_key? :references_table_name
-            ActiveSupport::Deprecation.warn ":references_table_name option is deprecated, use :to_table"
-            options[:to_table] = options.delete(:references_table_name)
-          end
-          case args.length
-          when 1
-            from_table = args[0]
-          when 2
-            from_table, to_table = args
-          when 3, 4
-            ActiveSupport::Deprecation.warn "3- and 4-argument forms of remove_foreign_key are deprecated.  use add_foreign_key(from_table, to_table, options)"
-            (from_table, column, to_table, primary_key) = args
-            options.merge!(column: column, primary_key: primary_key)
-          else
-            raise ArgumentError, "Wrong number of arguments(#{args.length}) to remove_foreign_key"
-          end
-          to_table ||= options.delete(:to_table)
-          [from_table, to_table, options]
         end
 
         def get_foreign_key_name(from_table, to_table, options)

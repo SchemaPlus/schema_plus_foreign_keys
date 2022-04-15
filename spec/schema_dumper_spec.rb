@@ -2,20 +2,18 @@ require 'spec_helper'
 require 'stringio'
 
 describe "Schema dump" do
-  let(:column_type) { Gem::Requirement.new('< 5.1').satisfied_by?(::ActiveRecord.version) ? :integer : :bigint }
-
   before(:each) do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
         connection.tables_only.each do |table| drop_table table, force: :cascade end
 
-        create_table :users, :force => true do |t|
+        create_table :users, force: true do |t|
           t.string :login
           t.datetime :deleted_at
           t.references :first_post, index: { unique: true }
         end
 
-        create_table :posts, :force => true do |t|
+        create_table :posts, force: true do |t|
           t.text :body
           t.references :user
           t.references :first_comment
@@ -33,7 +31,7 @@ describe "Schema dump" do
           t.boolean :boolean_col
         end
 
-        create_table :comments, :force => true do |t|
+        create_table :comments, force: true do |t|
           t.text :body
           t.references :post
           t.references :commenter
@@ -59,7 +57,7 @@ describe "Schema dump" do
   end
 
   it "should include foreign_key name" do
-    with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
+    with_foreign_key Post, :user_id, :users, :id, name: "yippee" do
       expect(dump_posts).to match(/user_id.*foreign_key.*users.*:name=>"yippee"/)
     end
   end
@@ -72,7 +70,7 @@ describe "Schema dump" do
 
 
   it "should include foreign_key exactly once" do
-    with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
+    with_foreign_key Post, :user_id, :users, :id, name: "yippee" do
       expect(dump_posts.scan(/foreign_key.*yippee"/).length).to eq 1
     end
   end
@@ -98,7 +96,7 @@ describe "Schema dump" do
 
     it "should handle regexp in ignore_tables" do
       with_foreign_key Comment, :post_id, :posts, :id do
-        dump = dump_schema(:ignore => /post/)
+        dump = dump_schema(ignore: /post/)
         expect(dump).to match(/create_table "comments"/)
         expect(dump).not_to match(/create_table "posts"/)
       end
@@ -107,12 +105,12 @@ describe "Schema dump" do
   end
 
   it "should include foreign_key options" do
-    with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :nullify do
-      expect(dump_posts).to match(%q[t.(integer|bigint)\s*"user_id",.*:foreign_key=>{:references=>"users", :name=>"fk_posts_user_id", :on_update=>:cascade, :on_delete=>:nullify}])
+    with_foreign_key Post, :user_id, :users, :id, on_update: :cascade, on_delete: :nullify do
+      expect(dump_posts).to match(%q[t.(integer|bigint)\s*"user_id",.*:foreign_key=>{:references=>"users", :name=>"fk_rails_\w+", :on_update=>:cascade, :on_delete=>:nullify}])
     end
   end
 
-  context "with cyclic foreign key constraints", :sqlite3 => :skip do
+  context "with cyclic foreign key constraints", sqlite3: :skip do
     before(:each) do
       ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, User.table_name, column: :commenter_id)
       ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, Post.table_name, column: :post_id)
@@ -216,12 +214,12 @@ describe "Schema dump" do
   def with_foreign_keys(model, columnsets)
     table_columns = model.columns.reject{|column| column.name == 'id'}
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+      ActiveRecord::Migration.create_table model.table_name, force: true do |t|
         table_columns.each do |column|
           t.column column.name, column.type, limit: column.limit
         end
         columnsets.each do |columns, referenced_table_name, referenced_columns, options|
-          t.foreign_key columns, referenced_table_name, (options||{}).merge(primary_key: referenced_columns)
+          t.foreign_key referenced_table_name, **(options||{}).merge(column: columns, primary_key: referenced_columns)
         end
       end
     end

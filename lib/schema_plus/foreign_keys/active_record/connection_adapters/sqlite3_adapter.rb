@@ -59,12 +59,12 @@ module SchemaPlus::ForeignKeys
               on_delete = ForeignKeyDefinition::ACTION_LOOKUP[on_delete] || :no_action
               deferrable = deferrable ? (initially_deferred ? :initially_deferred : true) : false
 
-              options = { :name => name,
-                          :on_update => on_update,
-                          :on_delete => on_delete,
-                          :column => columns,
-                          :primary_key => primary_keys,
-                          :deferrable => deferrable }
+              options = { name: name,
+                          on_update: on_update,
+                          on_delete: on_delete,
+                          column: columns,
+                          primary_key: primary_keys,
+                          deferrable: deferrable }
 
               foreign_keys << ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(
                 from_table,

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "with multiple schemas" do
+describe "with multiple schemas", sqlite3: :skip do
   def connection
     ActiveRecord::Base.connection
   end
@@ -22,7 +22,7 @@ describe "with multiple schemas" do
 
   before(:each) do
     define_schema do
-      create_table :users, :force => true do |t|
+      create_table :users, force: true do |t|
         t.string :login
       end
     end
@@ -56,8 +56,8 @@ describe "with multiple schemas" do
     end
 
     it "should not find foreign keys in other schema" do
-      connection.create_table :comments, :force => true do |t|
-        t.references :user, :foreign_key => false
+      connection.create_table :comments, force: true do |t|
+        t.references :user, foreign_key: false
       end
       Comment.reset_column_information
       expect(Comment.foreign_keys.length).to eq(0)
@@ -66,8 +66,8 @@ describe "with multiple schemas" do
     end
 
     it "should find foreign keys in this schema" do
-      connection.create_table :comments, :force => true do |t|
-        t.references :user, :foreign_key => true
+      connection.create_table :comments, force: true do |t|
+        t.references :user, foreign_key: true
       end
       Comment.reset_column_information
       expect(Comment.foreign_keys.map(&:column).flatten).to eq(["user_id"])
@@ -80,13 +80,13 @@ describe "with multiple schemas" do
   context "foreign key migrations" do
     before(:each) do
       define_schema do
-        create_table "items", :force => true do |t|
+        create_table "items", force: true do |t|
         end
-        create_table "schema_plus_test2.groups", :force => true do |t|
+        create_table "schema_plus_test2.groups", force: true do |t|
         end
-        create_table "schema_plus_test2.members", :force => true do |t|
-          t.references :item, :foreign_key => true unless SchemaDev::Rspec::Helpers.mysql?
-          t.references :group, :foreign_key => { references: "schema_plus_test2.groups" }
+        create_table "schema_plus_test2.members", force: true do |t|
+          t.references :item, foreign_key: { name: 'fk_test2_members_items' } unless SchemaDev::Rspec::Helpers.mysql?
+          t.references :group, foreign_key: { name: 'fk_test2_members_groups', references: "schema_plus_test2.groups" }
         end
       end
       class Group < ::ActiveRecord::Base
@@ -122,13 +122,13 @@ describe "with multiple schemas" do
       expect(Member.foreign_keys.map(&:to_table)).to include "schema_plus_test2.groups"
     end
 
-    it "should reference table in default schema", :mysql => :skip do
+    it "should reference table in default schema", mysql: :skip do
       expect(Member.foreign_keys.map(&:to_table)).to include "items"
     end
 
     it "should include the schema in the constraint name" do
-      expected_names = ["fk_schema_plus_test2_members_group_id"]
-      expected_names << "fk_schema_plus_test2_members_item_id" unless SchemaDev::Rspec::Helpers.mysql?
+      expected_names = ["fk_test2_members_groups"]
+      expected_names << "fk_test2_members_items" unless SchemaDev::Rspec::Helpers.mysql?
       expect(Member.foreign_keys.map(&:name).sort).to match_array(expected_names.sort)
     end
   end

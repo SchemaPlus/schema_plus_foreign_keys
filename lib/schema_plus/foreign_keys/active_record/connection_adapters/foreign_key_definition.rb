@@ -1,4 +1,3 @@
-require 'openssl'
 require 'active_record/connection_adapters/abstract/schema_definitions'
 
 module SchemaPlus::ForeignKeys
@@ -17,28 +16,7 @@ module SchemaPlus::ForeignKeys
       #   true
       #   :initially_deferred
       module ForeignKeyDefinition
-
-        def column_names
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#column_names is deprecated, use Array.wrap(column)"
-          Array.wrap(column)
-        end
-
-        def references_column_names
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_column_names is deprecated, use Array.wrap(primary_key)"
-          Array.wrap(primary_key)
-        end
-
-        def references_table_name
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_table_name is deprecated, use #to_table"
-          to_table
-        end
-
-        def table_name
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#table_name is deprecated, use #from_table"
-          from_table
-        end
-
-        ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :nullify => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
+        ACTIONS = { cascade: "CASCADE", restrict: "RESTRICT", nullify: "SET NULL", set_default: "SET DEFAULT", no_action: "NO ACTION" }.freeze
         ACTION_LOOKUP = ACTIONS.invert.freeze
 
         def initialize(from_table, to_table, options={})
@@ -107,17 +85,6 @@ module SchemaPlus::ForeignKeys
 
         def quoted_to_table
           ::ActiveRecord::Base.connection.quote_table_name(to_table)
-        end
-
-        def self.default_name(from_table, column)
-          name = "fk_#{fixup_schema_name(from_table)}_#{Array.wrap(column).join('_and_')}"
-          name = name.slice(0, 27) + "_" + OpenSSL::Digest::MD5.new.hexdigest(name) if name.length > 60
-          name
-        end
-
-        def self.fixup_schema_name(table_name)
-          # replace . with _
-          table_name.to_s.gsub(/[.]/, '_')
         end
 
         def match(test)

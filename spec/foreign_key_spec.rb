@@ -90,7 +90,7 @@ describe "Foreign Key" do
 
       context "when is dropped", "comments(post_id)" do
 
-        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column == 'post_id') and fk.name }
+        let(:foreign_key_name) { fk = Comment.foreign_keys.detect { |it| it.column == 'post_id' } and fk.name }
 
         before(:each) do
           remove_foreign_key(:comments, name: foreign_key_name)
@@ -112,7 +112,7 @@ describe "Foreign Key" do
 
       context "when drop using hash", "comments(post_id)" do
 
-        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column == 'post_id') and fk.name }
+        let(:foreign_key_name) { fk = Comment.foreign_keys.detect { |it| it.column == 'post_id' } and fk.name }
 
         it "finds by name" do
           remove_foreign_key(:comments, name: foreign_key_name)

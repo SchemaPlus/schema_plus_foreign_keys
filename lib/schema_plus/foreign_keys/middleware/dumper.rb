@@ -37,7 +37,7 @@ module SchemaPlus::ForeignKeys
 
         # Ignore the foreign key dumps at the end of the schema; we'll put them in/near their tables
         def after(env)
-          env.dump.final.reject!(&it =~/foreign_key/)
+          env.dump.final.reject!{ |it| it =~/foreign_key/ }
         end
 
         private
@@ -66,7 +66,7 @@ module SchemaPlus::ForeignKeys
         def after(env)
           dumped = {}
           env.table.columns.each do |column|
-            if (foreign_key = env.dump.data.inline_fks[env.table.name].find(&its.column.to_s == column.name))
+            if (foreign_key = env.dump.data.inline_fks[env.table.name].find { |it| it.column.to_s == column.name })
               column.options[:foreign_key] = {references: foreign_key.to_table}.merge foreign_key.options_for_dump
               dumped[foreign_key] = true
             end

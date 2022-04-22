@@ -1,6 +1,5 @@
 require 'schema_plus/core'
 require 'schema_plus_compatibility'
-require 'its-it'
 require 'valuable'
 
 require_relative 'foreign_keys/version'

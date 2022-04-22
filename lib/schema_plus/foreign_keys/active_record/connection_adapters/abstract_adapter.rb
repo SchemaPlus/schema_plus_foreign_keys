@@ -66,7 +66,7 @@ module SchemaPlus::ForeignKeys
           return options[:name] if options[:name]
 
           fks = foreign_keys(from_table)
-          if fks.detect(&its.name == to_table)
+          if fks.detect { |it| it.name == to_table }
             ActiveSupport::Deprecation.warn "remove_foreign_key(table, name) is deprecated.  use remove_foreign_key(table, name: name)"
             return to_table
           end

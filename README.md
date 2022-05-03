@@ -4,11 +4,14 @@
 
 # SchemaPlus::ForeignKeys
 
-SchemaPlus::ForeignKeys provides extended support in ActiveRecord.  This includes extended support for declaraing foreign key constraints in migrations; support for deferrable constraints; support for SQLite3; cleaner schema dumps.
+SchemaPlus::ForeignKeys provides extended support in ActiveRecord.  This includes extended support for declaring
+foreign key constraints in migrations; support for deferrable constraints; support for SQLite3; cleaner schema dumps.
 
-SchemaPlus::ForeignKeys is part of the [SchemaPlus](https://github.com/SchemaPlus/) family of Ruby on Rails ActiveRecord extension gems.
+SchemaPlus::ForeignKeys is part of the [SchemaPlus](https://github.com/SchemaPlus/) family of Ruby on Rails ActiveRecord
+extension gems.
 
-For extra convenience, see also [schema_auto_foreign_keys](https://github.com/SchemaPlus/schema_auto_foreign_keys), which creates foriegn key constraints automatically.
+For extra convenience, see also [schema_auto_foreign_keys](https://github.com/SchemaPlus/schema_auto_foreign_keys),
+which creates foriegn key constraints automatically.
 
 
 ## Installation
@@ -29,7 +32,8 @@ gem.add_dependency "schema_plus_foreign_keys" # in a .gemspec
 ### Migrations
 
 To declare a foreign key constraint for a column, use the `:foreign_key`
-option.  The same options can be used with `t.integer`, `t.references`, `t.belongs_to`, `t.foreign_key`, `change_column`, and `add_foreign_key`:
+option.  The same options can be used with `t.integer`, `t.references`, `t.belongs_to`, `t.foreign_key`,
+`change_column`, and `add_foreign_key`:
 
     t.references :author, foreign_key: true           # create a foreign_key to table "authors"
     t.references :author, foreign_key: {}             # create a foreign_key to table "authors"
@@ -70,7 +74,8 @@ them in a `foreign_key` hash, e.g.
     t.references :author, on_delete: :cascade  # shorthand for foreign_key: { on_delete: :cascade }
     t.references :author, references: :people  # shorthand for foreign_key: { references: :people }
 
-To remove a foreign key constraint, you can either change the column, specifying `foreign_key: false`, or use `migration.remove_foreign_key(table, column)`
+To remove a foreign key constraint, you can either change the column, specifying `foreign_key: false`, or
+use `migration.remove_foreign_key(table, column)`
 
 ### Introspection
 
@@ -131,11 +136,14 @@ foreign key options.
 
 ### Schema Dump
 
-For clarity (and because it's required for SQLite3), in the generated `schema_dump.rb` file, the foreign key definitions are inluded within the table definitions.
+For clarity (and because it's required for SQLite3), in the generated `schema_dump.rb` file, the foreign key
+definitions are included within the table definitions.
 
 This means that the tables are output sorted that a table is
-defined before others that depend on it.  If, however, there are circularities in the
-foreign key relations, this won't be possible; In that case some table definitions will include comments indicating a "forward reference" to a table that's farther down in the file, and the constraint will be defined once that table is defined (this can never happen with SQLite3).
+defined before others that depend on it.  If, however, there are circular dependencies in the
+foreign key relations, this won't be possible; In that case some table definitions will include comments indicating
+a "forward reference" to a table that's farther down in the file, and the constraint will be defined once that table
+is defined (this can never happen with SQLite3).
 
 
 ## Compatibility
@@ -154,6 +162,7 @@ SchemaPlus::ForeignKeys is tested on:
 
 ## History
 
+* 1.0.0 - Drop Ruby < 2.5 and Rails < 5.2, adding Rails 6.0, and remove many deprecations
 * 0.1.8 - Compatibility with ActiveRecord 5.1 and ActiveRecord 5.2.
 * 0.1.7 - Compatibility with ActiveRecord 5.0.
 * 0.1.6 - Missing require

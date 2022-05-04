@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_record/connection_adapters/abstract/schema_definitions'
 
 module SchemaPlus::ForeignKeys
@@ -66,7 +68,7 @@ module SchemaPlus::ForeignKeys
         end
 
         def to_sql
-          sql = name ? "CONSTRAINT #{name} " : ""
+          sql = name ? +"CONSTRAINT #{name} " : +""
           sql << "FOREIGN KEY (#{quoted_column_names.join(", ")}) REFERENCES #{quoted_to_table} (#{quoted_primary_keys.join(", ")})"
           sql << " ON UPDATE #{ACTIONS[on_update]}" if on_update
           sql << " ON DELETE #{ACTIONS[on_delete]}" if on_delete

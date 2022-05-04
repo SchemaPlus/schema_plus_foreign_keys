@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'abstract/schema_creation'
 
 module SchemaPlus::ForeignKeys

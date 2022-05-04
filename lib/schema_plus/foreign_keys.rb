@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'schema_plus/core'
 require 'schema_plus_compatibility'
 require 'valuable'

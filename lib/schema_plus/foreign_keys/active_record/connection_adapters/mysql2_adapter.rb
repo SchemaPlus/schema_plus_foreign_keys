@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters
@@ -24,9 +26,7 @@ module SchemaPlus::ForeignKeys
         end
 
         def remove_foreign_key_sql(*args)
-          super.tap { |ret|
-            ret.sub!(/DROP CONSTRAINT/, 'DROP FOREIGN KEY') if ret
-          }
+          super&.sub(/DROP CONSTRAINT/, 'DROP FOREIGN KEY')
         end
 
         def foreign_keys(table_name, name = nil)

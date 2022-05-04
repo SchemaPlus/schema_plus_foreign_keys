@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters

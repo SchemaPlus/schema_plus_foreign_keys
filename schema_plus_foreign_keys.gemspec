@@ -24,7 +24,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "activerecord",  ">= 5.2", "< 6.1"
   gem.add_dependency "schema_plus_core", "~> 3.0.0"
-  gem.add_dependency "schema_plus_compatibility", "~> 1.0.0"
   gem.add_dependency "valuable"
 
   gem.add_development_dependency "bundler"

@@ -170,16 +170,17 @@ SchemaPlus::ForeignKeys is tested on:
 
 ## History
 
-* 1.0.0 - Drop Ruby < 2.5 and Rails < 5.2, adding Rails 6.0, and remove many deprecations
-* 0.1.8 - Compatibility with ActiveRecord 5.1 and ActiveRecord 5.2.
-* 0.1.7 - Compatibility with ActiveRecord 5.0.
-* 0.1.6 - Missing require
-* 0.1.5 - Explicit gem dependencies
-* 0.1.4 - Upgrade schema_plus_core dependency
-* 0.1.3 - Support aciverecord 4.2.6.  Thanks to [@btsuhako](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Abtsuhako) and [@dholdren](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Adholdren)
-* 0.1.2 - Handle very long names
-* 0.1.1 - Cleanup; use (new) core Migration::RenameTable stack rather than monkey patching.
-* 0.1.0 - Initial release, brought over from schema_plus 1.x via 2.0.0.pre*
+* **1.1.0** - Add AR 6.1 and 7.0. Add Ruby 3.1, and drop schema_plus_compatibility dependency
+* **1.0.0** - Drop Ruby < 2.5 and Rails < 5.2, adding Rails 6.0, and remove many deprecations
+* **0.1.8** - Compatibility with ActiveRecord 5.1 and ActiveRecord 5.2.
+* **0.1.7** - Compatibility with ActiveRecord 5.0.
+* **0.1.6** - Missing require
+* **0.1.5** - Explicit gem dependencies
+* **0.1.4** - Upgrade schema_plus_core dependency
+* **0.1.3** - Support aciverecord 4.2.6.  Thanks to [@btsuhako](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Abtsuhako) and [@dholdren](https://github.com/SchemaPlus/schema_plus_foreign_keys/issues?q=is%3Apr+is%3Aopen+author%3Adholdren)
+* **0.1.2** - Handle very long names
+* **0.1.1** - Cleanup; use (new) core Migration::RenameTable stack rather than monkey patching.
+* **0.1.0** - Initial release, brought over from schema_plus 1.x via 2.0.0.pre*
 
 ## Development & Testing
 
